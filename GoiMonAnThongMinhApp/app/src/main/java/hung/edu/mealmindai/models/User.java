@@ -1,0 +1,165 @@
+package hung.edu.mealmindai.models;
+
+import java.util.List;
+
+/**
+ * User profile stored in the users collection.
+ */
+public class User {
+    // Firebase Authentication uid.
+    private String userId;
+    // Basic profile information.
+    private String fullName;
+    private String email;
+    private String photoUrl;
+    // Optional health and preference data for meal recommendations.
+    private Integer age;
+    private String gender;
+    private Double heightCm;
+    private Double weightKg;
+    private String goal;
+    private String dietaryPreference;
+    private List<String> allergies;
+    private List<String> favoriteCategoryIds;
+    // Audit timestamps in epoch milliseconds.
+    private Long createdAt;
+    private Long updatedAt;
+
+    /**
+     * Required empty constructor for Firebase.
+     */
+    public User() {
+    }
+
+    public User(String userId, String fullName, String email, String photoUrl, Integer age,
+                String gender, Double heightCm, Double weightKg, String goal,
+                String dietaryPreference, List<String> allergies, List<String> favoriteCategoryIds,
+                Long createdAt, Long updatedAt) {
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.photoUrl = photoUrl;
+        this.age = age;
+        this.gender = gender;
+        this.heightCm = heightCm;
+        this.weightKg = weightKg;
+        this.goal = goal;
+        this.dietaryPreference = dietaryPreference;
+        this.allergies = allergies;
+        this.favoriteCategoryIds = favoriteCategoryIds;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Double getHeightCm() {
+        return heightCm;
+    }
+
+    public void setHeightCm(Double heightCm) {
+        this.heightCm = heightCm;
+    }
+
+    public Double getWeightKg() {
+        return weightKg;
+    }
+
+    public void setWeightKg(Double weightKg) {
+        this.weightKg = weightKg;
+    }
+
+    public String getGoal() {
+        return goal;
+    }
+
+    public void setGoal(String goal) {
+        this.goal = goal;
+    }
+
+    public String getDietaryPreference() {
+        return dietaryPreference;
+    }
+
+    public void setDietaryPreference(String dietaryPreference) {
+        this.dietaryPreference = dietaryPreference;
+    }
+
+    public List<String> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(List<String> allergies) {
+        this.allergies = allergies;
+    }
+
+    public List<String> getFavoriteCategoryIds() {
+        return favoriteCategoryIds;
+    }
+
+    public void setFavoriteCategoryIds(List<String> favoriteCategoryIds) {
+        this.favoriteCategoryIds = favoriteCategoryIds;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
