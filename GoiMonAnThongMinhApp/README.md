@@ -66,13 +66,13 @@ app/src/main/java/hung/edu/mealmindai
 
 Màn hình đầu tiên khi mở ứng dụng. Người dùng nhập email và mật khẩu để đăng nhập vào MealMind AI.
 
-![Màn hình đăng nhập MealMind AI](docs/images/01_login_open_app.png)
+<img src="docs/images/01_login_open_app.png" alt="Màn hình đăng nhập MealMind AI" width="300">
 
 ### 2. Màn hình đăng ký
 
 Màn hình tạo tài khoản mới gồm họ tên, email, mật khẩu và xác nhận mật khẩu.
 
-![Màn hình đăng ký MealMind AI](docs/images/02_register_screen.png)
+<img src="docs/images/02_register_screen.png" alt="Màn hình đăng ký MealMind AI" width="300">
 
 ## Firebase
 
