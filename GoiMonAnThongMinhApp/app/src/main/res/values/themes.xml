@@ -1,9 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.MealMindAI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorPrimaryDark">@color/primary_green_dark</item>
+        <item name="colorSecondary">@color/accent_orange</item>
+        <item name="colorAccent">@color/accent_orange</item>
+        <item name="android:colorAccent">@color/accent_orange</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowBackground">@color/auth_background</item>
+        <item name="android:statusBarColor">@color/auth_mint_background</item>
+        <item name="android:navigationBarColor">@color/auth_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.MealMindAI" parent="Base.Theme.MealMindAI" />
+
+    <style name="Theme.MealMindAI.Preview" parent="Base.Theme.MealMindAI" />
 </resources>

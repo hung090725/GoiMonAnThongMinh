@@ -6,12 +6,21 @@ import java.util.List;
  * User profile stored in the users collection.
  */
 public class User {
+    // Firestore user document id, usually the Firebase Auth uid.
+    private String uid;
     // Firebase Authentication uid.
     private String userId;
     // Basic profile information.
     private String fullName;
     private String email;
+    private String avatarUrl;
     private String photoUrl;
+    // Profile fields used for meal and budget recommendations.
+    private Double height;
+    private Double weight;
+    private String healthGoal;
+    private Double monthlyFoodBudget;
+    private String role;
     // Optional health and preference data for meal recommendations.
     private Integer age;
     private String gender;
@@ -29,6 +38,21 @@ public class User {
      * Required empty constructor for Firebase.
      */
     public User() {
+    }
+
+    public User(String uid, String fullName, String email, String avatarUrl, Double height,
+                Double weight, String healthGoal, Double monthlyFoodBudget, String role,
+                Long createdAt) {
+        this.uid = uid;
+        this.fullName = fullName;
+        this.email = email;
+        this.avatarUrl = avatarUrl;
+        this.height = height;
+        this.weight = weight;
+        this.healthGoal = healthGoal;
+        this.monthlyFoodBudget = monthlyFoodBudget;
+        this.role = role;
+        this.createdAt = createdAt;
     }
 
     public User(String userId, String fullName, String email, String photoUrl, Integer age,
@@ -49,6 +73,14 @@ public class User {
         this.favoriteCategoryIds = favoriteCategoryIds;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUserId() {
@@ -75,12 +107,60 @@ public class User {
         this.email = email;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public String getPhotoUrl() {
         return photoUrl;
     }
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public String getHealthGoal() {
+        return healthGoal;
+    }
+
+    public void setHealthGoal(String healthGoal) {
+        this.healthGoal = healthGoal;
+    }
+
+    public Double getMonthlyFoodBudget() {
+        return monthlyFoodBudget;
+    }
+
+    public void setMonthlyFoodBudget(Double monthlyFoodBudget) {
+        this.monthlyFoodBudget = monthlyFoodBudget;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Integer getAge() {

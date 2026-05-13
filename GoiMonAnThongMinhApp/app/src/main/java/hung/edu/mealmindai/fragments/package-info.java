@@ -1,4 +1,4 @@
 /**
- * Fragment classes for reusable MealMind AI screen sections.
+ * Fragment classes for reusable MealMind screen sections.
  */
 package hung.edu.mealmindai.fragments;

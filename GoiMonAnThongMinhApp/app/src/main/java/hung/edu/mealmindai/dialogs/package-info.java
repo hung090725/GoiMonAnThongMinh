@@ -1,4 +1,4 @@
 /**
- * Dialog classes for MealMind AI user interactions.
+ * Dialog classes for MealMind user interactions.
  */
 package hung.edu.mealmindai.dialogs;

@@ -1,4 +1,4 @@
 /**
- * Repository classes for MealMind AI data access.
+ * Repository classes for MealMind data access.
  */
 package hung.edu.mealmindai.repositories;

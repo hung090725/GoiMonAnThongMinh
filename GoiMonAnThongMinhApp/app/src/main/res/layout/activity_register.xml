@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_auth_screen"
+    tools:context=".activities.RegisterActivity"
+    tools:theme="@style/Theme.MealMindAI.Preview">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:minHeight="830dp"
+            android:orientation="vertical"
+            android:paddingBottom="18dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="236dp"
+                android:background="@drawable/bg_hero_panel"
+                android:paddingTop="16dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="208dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginHorizontal="14dp"
+                    android:contentDescription="@string/smart_meal_chip"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/illustration_smart_plate" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="66dp"
+                    android:background="@drawable/bg_ai_chip"
+                    android:gravity="center"
+                    android:text="@string/smart_meal_chip"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="62dp"
+                    android:layout_height="62dp"
+                    android:layout_gravity="center_horizontal|top"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_brand_badge"
+                    android:elevation="8dp"
+                    android:gravity="center"
+                    android:text="@string/auth_brand_badge"
+                    android:textColor="@color/white"
+                    android:textSize="21sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="18dp"
+                android:gravity="center"
+                android:text="@string/register_title"
+                android:textColor="@color/text_primary"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="36dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/register_subtitle"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="22dp"
+                    android:paddingBottom="20dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutFullName"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/label_full_name"
+                        app:boxBackgroundColor="@color/field_background"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxStrokeColor="@color/primary_green"
+                        app:boxStrokeWidth="1dp"
+                        app:hintTextColor="@color/primary_green">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextFullName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="name"
+                            android:inputType="textPersonName"
+                            android:singleLine="true"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutEmail"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/label_email"
+                        app:boxBackgroundColor="@color/field_background"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxStrokeColor="@color/primary_green"
+                        app:boxStrokeWidth="1dp"
+                        app:hintTextColor="@color/primary_green">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="emailAddress"
+                            android:inputType="textEmailAddress"
+                            android:singleLine="true"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutPassword"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/label_password"
+                        app:boxBackgroundColor="@color/field_background"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxStrokeColor="@color/primary_green"
+                        app:boxStrokeWidth="1dp"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/text_secondary"
+                        app:hintTextColor="@color/primary_green">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="newPassword"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutConfirmPassword"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/label_confirm_password"
+                        app:boxBackgroundColor="@color/field_background"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxStrokeColor="@color/primary_green"
+                        app:boxStrokeWidth="1dp"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/text_secondary"
+                        app:hintTextColor="@color/primary_green">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextConfirmPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="newPassword"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonRegister"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="20dp"
+                        android:text="@string/action_register"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/primary_green"
+                        app:cornerRadius="18dp"
+                        app:elevation="4dp" />
+
+                    <ProgressBar
+                        android:id="@+id/progressRegister"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="14dp"
+                        android:indeterminateTint="@color/accent_orange"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/textLoginLink"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:minWidth="220dp"
+                android:text="@string/link_login"
+                android:textColor="@color/primary_green"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

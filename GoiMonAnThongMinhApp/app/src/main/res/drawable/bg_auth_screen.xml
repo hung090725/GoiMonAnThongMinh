@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/auth_background" />
+        </shape>
+    </item>
+    <item android:bottom="560dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:endColor="@color/auth_mint_background"
+                android:startColor="@color/soft_mint" />
+        </shape>
+    </item>
+    <item
+        android:left="-60dp"
+        android:right="220dp"
+        android:top="118dp"
+        android:bottom="520dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/accent_orange_soft" />
+        </shape>
+    </item>
+    <item
+        android:left="250dp"
+        android:right="-64dp"
+        android:top="34dp"
+        android:bottom="650dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/soft_green" />
+        </shape>
+    </item>
+</layer-list>

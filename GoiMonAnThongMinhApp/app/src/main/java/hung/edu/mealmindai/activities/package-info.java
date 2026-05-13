@@ -1,4 +1,4 @@
 /**
- * Activity classes for MealMind AI screens.
+ * Activity classes for MealMind screens.
  */
 package hung.edu.mealmindai.activities;

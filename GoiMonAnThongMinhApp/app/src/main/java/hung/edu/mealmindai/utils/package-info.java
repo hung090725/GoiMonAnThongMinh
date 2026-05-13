@@ -1,4 +1,4 @@
 /**
- * Shared utility classes for MealMind AI.
+ * Shared utility classes for MealMind.
  */
 package hung.edu.mealmindai.utils;
