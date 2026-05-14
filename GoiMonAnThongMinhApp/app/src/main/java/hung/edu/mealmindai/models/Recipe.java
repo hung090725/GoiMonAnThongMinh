@@ -1,5 +1,7 @@
 package hung.edu.mealmindai.models;
 
+import com.google.firebase.Timestamp;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,7 @@ public class Recipe {
     // Firestore document id or custom recipe id.
     private String recipeId;
     // Main recipe content shown to users.
+    private String name;
     private String title;
     private String description;
     private String imageUrl;
@@ -17,6 +20,8 @@ public class Recipe {
     private List<String> steps;
     // Nutrition and cooking details.
     private Integer calories;
+    private Double estimatedCost;
+    private Integer cookingTime;
     private Double protein;
     private Double carbs;
     private Double fat;
@@ -25,9 +30,14 @@ public class Recipe {
     private String difficulty;
     private List<String> tags;
     // Ownership and metadata.
+    private String authorId;
+    private String authorName;
+    private String status;
+    private Integer likeCount;
     private String createdBy;
     private Boolean aiGenerated;
     private Long createdAt;
+    private Timestamp createdAtTimestamp;
     private Long updatedAt;
 
     /**
@@ -72,11 +82,19 @@ public class Recipe {
     }
 
     public String getTitle() {
-        return title;
+        return title != null ? title : name;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getName() {
+        return name != null ? name : title;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -125,6 +143,22 @@ public class Recipe {
 
     public void setCalories(Integer calories) {
         this.calories = calories;
+    }
+
+    public Double getEstimatedCost() {
+        return estimatedCost;
+    }
+
+    public void setEstimatedCost(Double estimatedCost) {
+        this.estimatedCost = estimatedCost;
+    }
+
+    public Integer getCookingTime() {
+        return cookingTime != null ? cookingTime : cookingTimeMinutes;
+    }
+
+    public void setCookingTime(Integer cookingTime) {
+        this.cookingTime = cookingTime;
     }
 
     public Double getProtein() {
@@ -191,6 +225,38 @@ public class Recipe {
         this.createdBy = createdBy;
     }
 
+    public String getAuthorId() {
+        return authorId != null ? authorId : createdBy;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
     public Boolean getAiGenerated() {
         return aiGenerated;
     }
@@ -205,6 +271,14 @@ public class Recipe {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Timestamp getCreatedAtTimestamp() {
+        return createdAtTimestamp;
+    }
+
+    public void setCreatedAtTimestamp(Timestamp createdAtTimestamp) {
+        this.createdAtTimestamp = createdAtTimestamp;
     }
 
     public Long getUpdatedAt() {

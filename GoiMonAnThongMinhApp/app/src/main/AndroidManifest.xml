@@ -18,20 +18,26 @@
             android:name=".activities.AdminDashboardActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.RecipeDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.LoginActivity"
-            android:exported="true">
+            android:name=".activities.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MealMindAI">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

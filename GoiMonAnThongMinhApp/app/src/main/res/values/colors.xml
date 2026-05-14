@@ -8,8 +8,11 @@
     <color name="soft_green">#F1FAF3</color>
     <color name="primary_green">#2E7D32</color>
     <color name="primary_green_dark">#1B5E20</color>
-    <color name="accent_orange">#FFB86C</color>
+    <color name="primary_light">#E8F5E9</color>
+    <color name="accent_orange">#FF9800</color>
     <color name="accent_orange_soft">#FFF1E2</color>
+    <color name="background_main">#F8F9FA</color>
+    <color name="text_main">#263238</color>
     <color name="field_background">#FAFCFA</color>
     <color name="text_primary">#1F2933</color>
     <color name="text_secondary">#6B7280</color>

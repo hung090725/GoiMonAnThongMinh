@@ -17,4 +17,19 @@
     </style>
 
     <style name="Theme.MealMindAI.Preview" parent="Base.Theme.MealMindAI" />
+
+    <style name="Widget.MealMind.BottomNavigation.ActiveIndicator" parent="">
+        <item name="android:color">@color/accent_orange_soft</item>
+    </style>
+
+    <style name="TextAppearance.MealMind.RecipeChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textColor">@color/primary_green</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
