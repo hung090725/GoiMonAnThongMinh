@@ -47,7 +47,7 @@ public class RecommendationEngine {
         for (String userIng : userIngredients) {
             String ui = userIng.trim().toLowerCase();
             for (String recipeIng : recipeIngredients) {
-                if (recipeIng.toLowerCase().contains(ui)) {
+                if (recipeIng != null && recipeIng.toLowerCase().contains(ui)) {
                     matchedCount++;
                     break; 
                 }

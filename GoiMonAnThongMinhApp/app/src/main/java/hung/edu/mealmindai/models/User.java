@@ -20,6 +20,8 @@ public class User {
     private Double weight;
     private String healthGoal;
     private Double monthlyFoodBudget;
+    private Double mealBudget;
+    private Integer availableTime;
     private String role;
     // Optional health and preference data for meal recommendations.
     private Integer age;
@@ -32,7 +34,7 @@ public class User {
     private List<String> favoriteCategoryIds;
     // Audit timestamps in epoch milliseconds.
     private Long createdAt;
-    private Long updatedAt;
+    private Object updatedAt; // Dùng Object để nhận ServerTimestamp từ Firestore
 
     /**
      * Required empty constructor for Firebase.
@@ -235,11 +237,27 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Double getMealBudget() {
+        return mealBudget;
+    }
+
+    public void setMealBudget(Double mealBudget) {
+        this.mealBudget = mealBudget;
+    }
+
+    public Integer getAvailableTime() {
+        return availableTime;
+    }
+
+    public void setAvailableTime(Integer availableTime) {
+        this.availableTime = availableTime;
+    }
+
+    public Object getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Object updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

@@ -100,7 +100,7 @@ public class ProfileFragment extends Fragment {
             public void onError(Exception e) {
                 if (!isAdded()) return;
                 setLoading(false);
-                Toast.makeText(requireContext(), "Lỗi tải hồ sơ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Lỗi tải hồ sơ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

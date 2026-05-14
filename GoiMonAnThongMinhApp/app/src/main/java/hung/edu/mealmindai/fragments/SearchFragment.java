@@ -30,7 +30,9 @@ import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.activities.RecipeDetailActivity;
 import hung.edu.mealmindai.adapters.RecipeAdapter;
 import hung.edu.mealmindai.models.Recipe;
+import hung.edu.mealmindai.models.User;
 import hung.edu.mealmindai.repositories.SearchHistoryRepository;
+import hung.edu.mealmindai.repositories.UserRepository;
 import hung.edu.mealmindai.utils.RecommendationEngine;
 
 public class SearchFragment extends Fragment {
@@ -46,6 +48,7 @@ public class SearchFragment extends Fragment {
     private RecipeAdapter recipeAdapter;
     private FirebaseFirestore db;
     private SearchHistoryRepository historyRepository;
+    private UserRepository userRepository;
 
     // User preferences for recommendation
     private String healthGoal = "";
@@ -95,17 +98,23 @@ public class SearchFragment extends Fragment {
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) return;
 
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        healthGoal = documentSnapshot.getString("healthGoal");
-                        Double budget = documentSnapshot.getDouble("monthlyBudget");
-                        if (budget != null) {
-                            // Giả sử budget cho 1 bữa ăn là 1/60 budget tháng
-                            userBudget = budget / 60.0;
-                        }
-                    }
-                });
+        if (userRepository == null) userRepository = new UserRepository();
+
+        userRepository.getCurrentUserProfile(new UserRepository.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null) {
+                    healthGoal = user.getHealthGoal() != null ? user.getHealthGoal() : "";
+                    userBudget = user.getMealBudget() != null ? user.getMealBudget() : 0.0;
+                    availableTime = user.getAvailableTime() != null ? user.getAvailableTime() : 0;
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Giữ giá trị mặc định nếu lỗi
+            }
+        });
     }
 
     private void performSearch() {
