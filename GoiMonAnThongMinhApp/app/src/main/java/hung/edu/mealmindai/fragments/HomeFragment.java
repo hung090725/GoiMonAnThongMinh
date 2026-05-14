@@ -30,6 +30,8 @@ public class HomeFragment extends Fragment {
     private ProgressBar progressRecipes;
     private TextView emptyRecipesText;
     private TextView errorRecipesText;
+    private TextView buttonHomeScrollTop;
+    private TextView buttonHomeScrollBottom;
     private RecyclerView recipesRecyclerView;
     private RecipeAdapter recipeAdapter;
     private RecipeRepository recipeRepository;
@@ -46,15 +48,16 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupRecyclerView();
-        // Seed dữ liệu mẫu nếu collection recipes đang rỗng (chỉ chạy 1 lần)
-        SeedDataHelper.seedRecipesIfNeeded();
-        loadApprovedRecipes();
+        // Seed dữ liệu mẫu nếu collection recipes đang rỗng, rồi tải danh sách món.
+        SeedDataHelper.seedRecipesIfNeeded(this::loadApprovedRecipes);
     }
 
     private void initViews(View view) {
         progressRecipes = view.findViewById(R.id.progressRecipes);
         emptyRecipesText = view.findViewById(R.id.textEmptyRecipes);
         errorRecipesText = view.findViewById(R.id.textErrorRecipes);
+        buttonHomeScrollTop = view.findViewById(R.id.buttonHomeScrollTop);
+        buttonHomeScrollBottom = view.findViewById(R.id.buttonHomeScrollBottom);
         recipesRecyclerView = view.findViewById(R.id.recyclerRecipes);
         recipeRepository = new RecipeRepository();
     }
@@ -63,6 +66,13 @@ public class HomeFragment extends Fragment {
         recipeAdapter = new RecipeAdapter(new ArrayList<>(), this::openRecipeDetail);
         recipesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recipesRecyclerView.setAdapter(recipeAdapter);
+        buttonHomeScrollTop.setOnClickListener(v -> recipesRecyclerView.smoothScrollToPosition(0));
+        buttonHomeScrollBottom.setOnClickListener(v -> {
+            int lastPosition = recipeAdapter.getItemCount() - 1;
+            if (lastPosition >= 0) {
+                recipesRecyclerView.smoothScrollToPosition(lastPosition);
+            }
+        });
     }
 
     private void loadApprovedRecipes() {

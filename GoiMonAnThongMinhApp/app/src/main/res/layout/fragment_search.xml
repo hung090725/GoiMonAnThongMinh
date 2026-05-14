@@ -1,149 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/auth_background"
-    android:fillViewport="true"
-    android:scrollbars="vertical"
-    android:overScrollMode="never">
+    android:orientation="vertical">
 
+    <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_fragment_accent"
         android:orientation="vertical"
-        android:padding="22dp"
-        android:paddingBottom="110dp">
+        android:paddingHorizontal="22dp"
+        android:paddingTop="26dp"
+        android:paddingBottom="22dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/search_title"
+            android:text="@string/search_smart_title"
             android:textColor="@color/text_primary"
-            android:textSize="28sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_search_field"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="18dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/search_title"
-                android:src="@drawable/ic_nav_search"
-                app:tint="@color/primary_green" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="@string/search_hint"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-        </LinearLayout>
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/search_smart_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
+        <!-- Search Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/search_category_title"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_chip_green_soft"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="@string/search_chip_rice"
-                android:textColor="@color/primary_green"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_chip_orange_soft"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="@string/search_chip_noodle"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_chip_green_soft"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="@string/search_chip_healthy"
-                android:textColor="@color/primary_green"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="@string/search_result_title"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="96dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_fragment_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:contentDescription="@string/home_suggested_meal"
-                android:src="@drawable/ic_meal_placeholder" />
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <EditText
+                    android:id="@+id/editIngredientsInput"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/home_suggested_meal"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/search_placeholder"
+                    android:inputType="text"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="8dp"
+                    android:textSize="15sp" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/home_suggested_desc"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                <ImageButton
+                    android:id="@+id/buttonVoiceSearch"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/search_voice"
+                    android:src="@drawable/ic_nav_community"
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSearchRecipes"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/search_action"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary_green"
+            app:cornerRadius="16dp" />
+    </LinearLayout>
+
+    <!-- Results Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textResultsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="22dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/search_result_section"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/progressSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:indeterminateTint="@color/primary_green"
+            android:visibility="gone" />
+
+        <!-- Recycler results -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="100dp"
+            android:scrollbars="vertical"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <!-- States (Empty/No Result/Error) -->
+        <LinearLayout
+            android:id="@+id/layoutSearchStates"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="40dp">
+
+            <ImageView
+                android:id="@+id/imageSearchState"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_nav_search"
+                app:tint="@color/divider_soft" />
+
+            <TextView
+                android:id="@+id/textSearchState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/search_empty_state"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

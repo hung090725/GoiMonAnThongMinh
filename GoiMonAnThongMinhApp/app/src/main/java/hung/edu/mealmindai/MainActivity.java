@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import hung.edu.mealmindai.fragments.CommunityFragment;
 import hung.edu.mealmindai.fragments.FavoriteFragment;
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
             });
 
             bottomNavigationView = findViewById(R.id.bottomNavigationView);
+            bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
+            bottomNavigationView.setItemHorizontalTranslationEnabled(false);
             setupBottomNavigation();
 
             if (savedInstanceState == null) {
@@ -52,18 +55,23 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
 
             if (itemId == R.id.nav_home) {
+                animateSelectedTab();
                 openFragment(new HomeFragment());
                 return true;
             } else if (itemId == R.id.nav_search) {
+                animateSelectedTab();
                 openFragment(new SearchFragment());
                 return true;
             } else if (itemId == R.id.nav_favorite) {
+                animateSelectedTab();
                 openFragment(new FavoriteFragment());
                 return true;
             } else if (itemId == R.id.nav_community) {
+                animateSelectedTab();
                 openFragment(new CommunityFragment());
                 return true;
             } else if (itemId == R.id.nav_profile) {
+                animateSelectedTab();
                 openFragment(new ProfileFragment());
                 return true;
             }
@@ -78,5 +86,18 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
                 .commit();
+    }
+
+    private void animateSelectedTab() {
+        bottomNavigationView.animate()
+                .scaleX(1.015f)
+                .scaleY(1.015f)
+                .setDuration(90)
+                .withEndAction(() -> bottomNavigationView.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(120)
+                        .start())
+                .start();
     }
 }

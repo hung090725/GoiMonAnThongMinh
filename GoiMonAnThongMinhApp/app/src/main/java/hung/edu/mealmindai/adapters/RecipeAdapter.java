@@ -90,28 +90,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             textCookingTime.setText(formatCookingTime(recipe.getCookingTime()));
             textDifficulty.setText(formatDifficulty(recipe.getDifficulty()));
 
-            String imageUrl = recipe.getImageUrl();
-            if (!TextUtils.isEmpty(imageUrl)) {
-                if (imageUrl.startsWith("res://")) {
-                    String resName = imageUrl.replace("res://", "");
-                    int resId = itemView.getContext().getResources().getIdentifier(resName, "drawable", itemView.getContext().getPackageName());
-                    Glide.with(itemView.getContext())
-                            .load(resId != 0 ? resId : R.drawable.ic_meal_placeholder)
-                            .placeholder(R.drawable.ic_meal_placeholder)
-                            .error(R.drawable.ic_meal_placeholder)
-                            .centerCrop()
-                            .into(imageRecipe);
-                } else {
-                    Glide.with(itemView.getContext())
-                            .load(imageUrl)
-                            .placeholder(R.drawable.ic_meal_placeholder)
-                            .error(R.drawable.ic_meal_placeholder)
-                            .centerCrop()
-                            .into(imageRecipe);
-                }
-            } else {
-                imageRecipe.setImageResource(R.drawable.ic_meal_placeholder);
-            }
+            loadRecipeImage(recipe);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -119,6 +98,36 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 }
             });
         }
+
+        private void loadRecipeImage(Recipe recipe) {
+            String imageUrl = recipe.getImageUrl();
+            Object imageSource = R.drawable.ic_meal_placeholder;
+
+            if (isChickenLemongrass(recipe)) {
+                imageSource = R.drawable.gaxaosa;
+            } else if (!TextUtils.isEmpty(imageUrl)) {
+                if (imageUrl.startsWith("res://")) {
+                    String resName = imageUrl.replace("res://", "");
+                    int resId = itemView.getContext().getResources()
+                            .getIdentifier(resName, "drawable", itemView.getContext().getPackageName());
+                    imageSource = resId != 0 ? resId : R.drawable.ic_meal_placeholder;
+                } else {
+                    imageSource = imageUrl;
+                }
+            }
+
+            Glide.with(itemView.getContext())
+                    .load(imageSource)
+                    .placeholder(R.drawable.ic_meal_placeholder)
+                    .error(R.drawable.ic_meal_placeholder)
+                    .centerCrop()
+                    .into(imageRecipe);
+        }
+    }
+
+    private boolean isChickenLemongrass(Recipe recipe) {
+        String name = recipe != null ? recipe.getName() : null;
+        return !TextUtils.isEmpty(name) && name.toLowerCase().contains("gà xào sả ớt");
     }
 
     private String getDisplayName(Recipe recipe) {

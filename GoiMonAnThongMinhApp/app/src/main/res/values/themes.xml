@@ -24,6 +24,18 @@
         <item name="android:color">@color/accent_orange_soft</item>
     </style>
 
+    <style name="TextAppearance.MealMind.BottomNav.Active" parent="">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.MealMind.BottomNav.Inactive" parent="">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="TextAppearance.MealMind.RecipeChip" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">32dp</item>

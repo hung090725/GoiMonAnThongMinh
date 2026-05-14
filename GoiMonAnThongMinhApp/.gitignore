@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+.firebase-cli-config/
+.firebase-cli-config /

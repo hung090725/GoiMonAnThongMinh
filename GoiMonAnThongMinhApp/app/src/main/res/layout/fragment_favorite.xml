@@ -1,37 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_auth_screen"
-    android:fillViewport="true"
-    android:scrollbars="vertical"
-    android:overScrollMode="never">
+    android:background="@color/auth_background"
+    android:orientation="vertical">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp"
-        android:paddingBottom="110dp">
+        android:paddingHorizontal="22dp"
+        android:paddingTop="22dp"
+        android:paddingBottom="6dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="136dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_fragment_accent"
-            android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="20dp">
 
             <FrameLayout
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
                 android:background="@drawable/bg_fragment_icon_circle">
 
                 <ImageView
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_gravity="center"
                     android:contentDescription="@string/favorite_title"
                     android:src="@drawable/ic_nav_favorite"
@@ -48,113 +47,99 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/favorite_empty_title"
+                    android:text="@string/favorite_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/favorite_subtitle"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="108dp"
-            android:layout_marginTop="22dp"
-            android:background="@drawable/bg_fragment_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <ImageView
-                android:layout_width="68dp"
-                android:layout_height="68dp"
-                android:contentDescription="@string/favorite_saved_1"
-                android:src="@drawable/ic_meal_placeholder" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/favorite_saved_1"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/favorite_saved_desc"
+                    android:text="@string/favorite_header_subtitle"
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:contentDescription="@string/favorite_title"
-                android:src="@drawable/ic_nav_favorite"
-                app:tint="@color/accent_orange" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="108dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_fragment_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <ImageView
-                android:layout_width="68dp"
-                android:layout_height="68dp"
-                android:contentDescription="@string/favorite_saved_2"
-                android:src="@drawable/ic_meal_placeholder" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/favorite_saved_2"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/favorite_saved_desc"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:contentDescription="@string/favorite_title"
-                android:src="@drawable/ic_nav_favorite"
-                app:tint="@color/accent_orange" />
         </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+    <!-- Loading -->
+    <ProgressBar
+        android:id="@+id/progressFavorites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="60dp"
+        android:indeterminateTint="@color/primary_green"
+        android:visibility="gone" />
+
+    <!-- RecyclerView danh sách yêu thích -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerFavorites"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="104dp"
+        android:scrollbars="vertical"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/layoutEmptyFavorites"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="40dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@string/favorite_title"
+            android:src="@drawable/ic_favorite_outline" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="@string/favorite_empty_message"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:lineSpacingExtra="3dp"
+            android:text="@string/favorite_empty_hint"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Error State -->
+    <TextView
+        android:id="@+id/textErrorFavorites"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="28dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/bg_fragment_card"
+        android:gravity="center"
+        android:padding="20dp"
+        android:text="@string/favorite_error"
+        android:textColor="@color/accent_orange"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+</LinearLayout>

@@ -99,4 +99,20 @@
     <string name="admin_metric_users_value">2.4k</string>
     <string name="admin_metric_ai_value">918</string>
     <string name="admin_add_recipe">Thêm món mới</string>
+    <string name="favorite_header_subtitle">Những món bạn đã lưu lại</string>
+    <string name="favorite_empty_message">Bạn chưa có món yêu thích</string>
+    <string name="favorite_empty_hint">Hãy bấm trái tim ở món bạn muốn lưu lại</string>
+    <string name="favorite_error">Không thể tải danh sách yêu thích</string>
+    <string name="favorite_added">Đã thêm vào yêu thích ❤️</string>
+    <string name="favorite_removed">Đã bỏ yêu thích</string>
+    <string name="favorite_login_required">Vui lòng đăng nhập để lưu yêu thích</string>
+    <string name="search_smart_title">Tìm món thông minh</string>
+    <string name="search_smart_subtitle">Nhập nguyên liệu bạn đang có</string>
+    <string name="search_placeholder">Ví dụ: trứng, cà chua, cơm</string>
+    <string name="search_action">Tìm món ngay</string>
+    <string name="search_voice">Nói nguyên liệu</string>
+    <string name="search_result_section">Kết quả phù hợp</string>
+    <string name="search_empty_state">Nhập nguyên liệu để MealMind AI gợi ý món phù hợp</string>
+    <string name="search_no_result">Chưa tìm thấy món phù hợp với nguyên liệu của bạn</string>
+    <string name="search_error">Lỗi khi tìm kiếm món ăn</string>
 </resources>

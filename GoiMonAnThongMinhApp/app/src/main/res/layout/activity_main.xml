@@ -26,11 +26,15 @@
         android:elevation="10dp"
         app:itemActiveIndicatorStyle="@style/Widget.MealMind.BottomNavigation.ActiveIndicator"
         app:itemIconSize="24dp"
-        app:itemPaddingBottom="10dp"
-        app:itemPaddingTop="10dp"
+        app:itemHorizontalTranslationEnabled="false"
+        app:itemPaddingBottom="6dp"
+        app:itemPaddingTop="6dp"
         app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemRippleColor="@color/primary_light"
+        app:itemTextAppearanceActive="@style/TextAppearance.MealMind.BottomNav.Active"
+        app:itemTextAppearanceInactive="@style/TextAppearance.MealMind.BottomNav.Inactive"
         app:itemTextColor="@color/bottom_nav_item_color"
-        app:labelVisibilityMode="selected"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom_nav" />
 
 </LinearLayout>
