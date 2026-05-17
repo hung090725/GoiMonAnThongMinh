@@ -340,6 +340,64 @@ Minh chứng notification được lưu trong collection `notifications`.
 
 <img src="docs/images/firebtongbao.png" alt="Thông báo Firestore" width="520">
 
+## Bổ Sung Kết Quả Phía Admin
+
+Các màn hình dưới đây minh chứng rõ hơn luồng quản trị viên sau khi hoàn thiện các chức năng kiểm duyệt, quản lý món ăn, quản lý danh mục và thống kê hệ thống.
+
+### 36. Màn hình chính Admin
+
+Màn hình tổng quan dành cho quản trị viên, hiển thị nhanh các nhóm chức năng quản lý chính.
+
+<img src="docs/images/adminmhchinh.png" alt="Màn hình chính Admin" width="260">
+
+### 37. Dashboard Admin cập nhật
+
+Dashboard hiển thị thống kê món chờ duyệt, món đã duyệt, món bị từ chối và số lượng người dùng.
+
+<img src="docs/images/mhchinh_admin_daduyet.png" alt="Dashboard Admin cập nhật" width="260">
+
+### 38. Danh sách món chờ duyệt
+
+Admin xem danh sách các công thức do người dùng gửi lên với trạng thái `pending`.
+
+<img src="docs/images/mhchoduyet.png" alt="Danh sách món chờ duyệt Admin" width="260">
+
+### 39. Màn hình quản lý món ăn
+
+Admin quản lý toàn bộ món ăn theo trạng thái như đã duyệt, chờ duyệt, bị từ chối và đã ẩn.
+
+<img src="docs/images/mhquanlymonan.png" alt="Màn hình quản lý món ăn Admin" width="260">
+
+### 40. Danh sách món đã duyệt
+
+Màn hình lọc và hiển thị các món đã được duyệt, các món này sẽ xuất hiện ở phía người dùng.
+
+<img src="docs/images/mhdaduyet.png" alt="Danh sách món đã duyệt" width="260">
+
+### 41. Danh sách món bị từ chối
+
+Admin có thể xem lại các món bị từ chối để kiểm tra lý do và trạng thái kiểm duyệt.
+
+<img src="docs/images/mhtuchoi.png" alt="Danh sách món bị từ chối" width="260">
+
+### 42. Quản lý danh mục món ăn
+
+Màn hình quản lý danh mục, hỗ trợ admin kiểm soát nhóm món ăn trong hệ thống.
+
+<img src="docs/images/mhquanlydanhmuc.png" alt="Quản lý danh mục món ăn" width="260">
+
+### 43. Thống kê hệ thống
+
+Màn hình thống kê tổng quan giúp admin theo dõi số lượng user, recipes, favorites và lịch sử tìm kiếm.
+
+<img src="docs/images/mhthongke.png" alt="Thống kê hệ thống Admin" width="260">
+
+### 44. Admin thêm công thức
+
+Admin có thể thêm món ăn mới trực tiếp vào hệ thống để phục vụ dữ liệu demo và kiểm duyệt nội bộ.
+
+<img src="docs/images/mhthemcongthuc.png" alt="Admin thêm công thức món ăn" width="260">
+
 ## Hướng Dẫn Chạy Project
 
 1. Clone repository về máy.
