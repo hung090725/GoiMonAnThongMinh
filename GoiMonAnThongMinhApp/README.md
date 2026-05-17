@@ -118,7 +118,9 @@ app/src/main/java/hung/edu/mealmindai
 ## Kết Quả Giao Diện
 
 Ảnh được lưu trong thư mục `docs/images` để khi đưa lên GitHub vẫn hiển thị được.
-Giao Diện Chính
+Giao Diện Chính.
+
+
 <img width="376" height="816" alt="image" src="https://github.com/user-attachments/assets/c0c58770-1834-46b0-a6e1-bd756dbc846a" />
 
 
