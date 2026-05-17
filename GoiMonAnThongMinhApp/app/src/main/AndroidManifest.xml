@@ -24,6 +24,14 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.NotificationActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AiSuggestionHistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.CategoryManagerActivity"
             android:exported="false" />
         <activity

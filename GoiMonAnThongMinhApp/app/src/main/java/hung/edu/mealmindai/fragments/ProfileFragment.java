@@ -19,8 +19,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.text.DecimalFormat;
 
 import hung.edu.mealmindai.R;
+import hung.edu.mealmindai.activities.AiSuggestionHistoryActivity;
 import hung.edu.mealmindai.activities.EditHealthProfileActivity;
 import hung.edu.mealmindai.activities.LoginActivity;
+import hung.edu.mealmindai.activities.NotificationActivity;
 import hung.edu.mealmindai.models.User;
 import hung.edu.mealmindai.repositories.UserRepository;
 
@@ -31,7 +33,7 @@ public class ProfileFragment extends Fragment {
     private TextView textMonthlyBudget, textMealBudget, textAvailableTime;
     private View layoutContent;
     private ProgressBar progressBar;
-    private Button buttonEdit, buttonLogout;
+    private Button buttonEdit, buttonLogout, buttonOpenNotifications, buttonOpenAiHistory;
 
     private UserRepository userRepository;
     private final DecimalFormat currencyFormat = new DecimalFormat("#,###");
@@ -71,12 +73,20 @@ public class ProfileFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressProfile);
         buttonEdit = view.findViewById(R.id.buttonEditProfile);
         buttonLogout = view.findViewById(R.id.buttonLogout);
+        buttonOpenNotifications = view.findViewById(R.id.buttonOpenNotifications);
+        buttonOpenAiHistory = view.findViewById(R.id.buttonOpenAiHistory);
     }
 
     private void setupClickListeners() {
         buttonEdit.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), EditHealthProfileActivity.class));
         });
+
+        buttonOpenNotifications.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), NotificationActivity.class)));
+
+        buttonOpenAiHistory.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AiSuggestionHistoryActivity.class)));
 
         buttonLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

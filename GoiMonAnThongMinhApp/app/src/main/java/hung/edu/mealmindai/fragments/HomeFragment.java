@@ -25,6 +25,7 @@ import hung.edu.mealmindai.activities.RecipeDetailActivity;
 import hung.edu.mealmindai.adapters.RecipeAdapter;
 import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
+import hung.edu.mealmindai.repositories.NotificationRepository;
 import hung.edu.mealmindai.repositories.RecipeRepository;
 import hung.edu.mealmindai.utils.SeedDataHelper;
 
@@ -52,6 +53,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupRecyclerView();
+        createDailySuggestionNotification();
         // Seed dữ liệu mẫu nếu collection recipes đang rỗng, rồi tải danh sách món.
         SeedDataHelper.seedRecipesIfNeeded(this::loadApprovedRecipes);
     }
@@ -153,6 +155,21 @@ public class HomeFragment extends Fragment {
         Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
         intent.putExtra(RecipeDetailActivity.EXTRA_RECIPE_ID, recipe.getRecipeId());
         startActivity(intent);
+    }
+
+    private void createDailySuggestionNotification() {
+        new NotificationRepository().createDailySuggestionNotificationIfNeeded(
+                new NotificationRepository.ActionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        // Silent success: notification will appear in the notification screen.
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Notification is optional; Home should keep loading normally.
+                    }
+                });
     }
 
     private void updateScrollActionVisibility() {

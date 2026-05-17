@@ -252,6 +252,38 @@
                     app:backgroundTint="@color/primary_green"
                     app:cornerRadius="16dp" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonOpenNotifications"
+                        android:layout_width="0dp"
+                        android:layout_height="54dp"
+                        android:layout_weight="1"
+                        android:text="Thông báo"
+                        android:textAllCaps="false"
+                        android:textColor="@color/primary_green"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/primary_light"
+                        app:cornerRadius="16dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonOpenAiHistory"
+                        android:layout_width="0dp"
+                        android:layout_height="54dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:text="Lịch sử AI"
+                        android:textAllCaps="false"
+                        android:textColor="@color/accent_orange"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/accent_orange_soft"
+                        app:cornerRadius="16dp" />
+                </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonLogout"
                     android:layout_width="match_parent"

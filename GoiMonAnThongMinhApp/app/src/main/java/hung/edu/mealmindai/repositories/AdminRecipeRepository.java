@@ -355,6 +355,13 @@ public class AdminRecipeRepository {
                                 Log.d(TAG, rejectReason == null
                                         ? "Approve success: " + recipeId
                                         : "Reject success: " + recipeId);
+                                NotificationRepository.createRecipeReviewNotification(
+                                        document.getString("authorId"),
+                                        recipeId,
+                                        document.getString("name"),
+                                        rejectReason == null,
+                                        rejectReason
+                                );
                                 callback.onSuccess();
                             })
                             .addOnFailureListener(e -> {
