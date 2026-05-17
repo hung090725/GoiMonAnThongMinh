@@ -1,5 +1,6 @@
 package hung.edu.mealmindai;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -11,7 +12,12 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import hung.edu.mealmindai.activities.AdminDashboardActivity;
+import hung.edu.mealmindai.activities.LoginActivity;
 import hung.edu.mealmindai.fragments.CommunityFragment;
 import hung.edu.mealmindai.fragments.FavoriteFragment;
 import hung.edu.mealmindai.fragments.HomeFragment;
@@ -21,6 +27,8 @@ import hung.edu.mealmindai.fragments.SearchFragment;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
+    private boolean redirectingByRole = false;
+    private boolean userUiReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,17 +44,56 @@ public class MainActivity extends AppCompatActivity {
             });
 
             bottomNavigationView = findViewById(R.id.bottomNavigationView);
-            bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
-            bottomNavigationView.setItemHorizontalTranslationEnabled(false);
-            setupBottomNavigation();
-
-            if (savedInstanceState == null) {
-                openFragment(new HomeFragment());
-                bottomNavigationView.setSelectedItemId(R.id.nav_home);
-            }
+            guardUserRoute(savedInstanceState == null);
         } catch (Exception e) {
             android.widget.Toast.makeText(this, "Lỗi Main: " + e.getMessage(), android.widget.Toast.LENGTH_LONG).show();
             e.printStackTrace();
+        }
+    }
+
+    private void guardUserRoute(boolean shouldOpenHome) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            redirectingByRole = true;
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String role = documentSnapshot.getString("role");
+                    if ("admin".equalsIgnoreCase(role)) {
+                        redirectingByRole = true;
+                        Intent intent = new Intent(this, AdminDashboardActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        setupUserUi(shouldOpenHome);
+                    }
+                })
+                .addOnFailureListener(e -> setupUserUi(shouldOpenHome));
+    }
+
+    private void setupUserUi(boolean shouldOpenHome) {
+        if (redirectingByRole || isFinishing() || userUiReady) {
+            return;
+        }
+
+        userUiReady = true;
+        bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
+        bottomNavigationView.setItemHorizontalTranslationEnabled(false);
+        setupBottomNavigation();
+
+        if (shouldOpenHome) {
+            openFragment(new HomeFragment());
+            bottomNavigationView.setSelectedItemId(R.id.nav_home);
         }
     }
 

@@ -15,9 +15,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import hung.edu.mealmindai.activities.SmartMealChatActivity;
 import hung.edu.mealmindai.activities.RecipeDetailActivity;
 import hung.edu.mealmindai.adapters.RecipeAdapter;
 import hung.edu.mealmindai.R;
@@ -32,6 +35,7 @@ public class HomeFragment extends Fragment {
     private TextView errorRecipesText;
     private TextView buttonHomeScrollTop;
     private TextView buttonHomeScrollBottom;
+    private MaterialButton buttonOpenSmartChat;
     private RecyclerView recipesRecyclerView;
     private RecipeAdapter recipeAdapter;
     private RecipeRepository recipeRepository;
@@ -58,8 +62,11 @@ public class HomeFragment extends Fragment {
         errorRecipesText = view.findViewById(R.id.textErrorRecipes);
         buttonHomeScrollTop = view.findViewById(R.id.buttonHomeScrollTop);
         buttonHomeScrollBottom = view.findViewById(R.id.buttonHomeScrollBottom);
+        buttonOpenSmartChat = view.findViewById(R.id.buttonOpenSmartChat);
         recipesRecyclerView = view.findViewById(R.id.recyclerRecipes);
         recipeRepository = new RecipeRepository();
+        buttonOpenSmartChat.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SmartMealChatActivity.class)));
     }
 
     private void setupRecyclerView() {
@@ -73,6 +80,14 @@ public class HomeFragment extends Fragment {
                 recipesRecyclerView.smoothScrollToPosition(lastPosition);
             }
         });
+        recipesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                updateScrollActionVisibility();
+            }
+        });
+        updateScrollActionVisibility();
     }
 
     private void loadApprovedRecipes() {
@@ -119,6 +134,7 @@ public class HomeFragment extends Fragment {
         recipesRecyclerView.setVisibility(View.VISIBLE);
         emptyRecipesText.setVisibility(View.GONE);
         errorRecipesText.setVisibility(View.GONE);
+        recipesRecyclerView.post(this::updateScrollActionVisibility);
     }
 
     private void showEmptyState() {
@@ -137,5 +153,16 @@ public class HomeFragment extends Fragment {
         Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
         intent.putExtra(RecipeDetailActivity.EXTRA_RECIPE_ID, recipe.getRecipeId());
         startActivity(intent);
+    }
+
+    private void updateScrollActionVisibility() {
+        if (buttonHomeScrollTop == null || buttonHomeScrollBottom == null || recipesRecyclerView == null) {
+            return;
+        }
+
+        boolean canScrollUp = recipesRecyclerView.canScrollVertically(-1);
+        boolean canScrollDown = recipesRecyclerView.canScrollVertically(1);
+        buttonHomeScrollTop.setVisibility(canScrollUp ? View.VISIBLE : View.GONE);
+        buttonHomeScrollBottom.setVisibility(canScrollDown ? View.VISIBLE : View.GONE);
     }
 }

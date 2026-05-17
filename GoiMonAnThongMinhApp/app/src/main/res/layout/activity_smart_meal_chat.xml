@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_main"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="126dp"
+        android:background="@color/primary_green"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="18dp">
+
+        <ImageButton
+            android:id="@+id/buttonChatBack"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_chip_green_soft"
+            android:contentDescription="@string/recipe_detail_title"
+            android:padding="11dp"
+            android:src="@drawable/ic_back_dark"
+            app:tint="@color/primary_green_dark" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/smart_chat_subtitle"
+                android:textColor="@color/primary_light"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textChatHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="10dp"
+        android:text="@string/smart_chat_example"
+        android:textColor="@color/primary_green_dark"
+        android:textSize="12sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerChatMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="14dp"
+        android:scrollbars="vertical" />
+
+    <ProgressBar
+        android:id="@+id/progressChat"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="4dp"
+        android:indeterminateTint="@color/accent_orange"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="14dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:boxBackgroundColor="@color/field_background"
+            app:boxCornerRadiusBottomEnd="18dp"
+            app:boxCornerRadiusBottomStart="18dp"
+            app:boxCornerRadiusTopEnd="18dp"
+            app:boxCornerRadiusTopStart="18dp"
+            app:boxStrokeColor="@color/primary_green"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editChatInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/smart_chat_input_hint"
+                android:imeOptions="actionSend"
+                android:inputType="textMultiLine|textCapSentences"
+                android:maxLines="3"
+                android:minHeight="52dp"
+                android:paddingHorizontal="14dp"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSendChat"
+            android:layout_width="72dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="10dp"
+            android:text="@string/smart_chat_send"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary_green"
+            app:cornerRadius="18dp" />
+    </LinearLayout>
+</LinearLayout>

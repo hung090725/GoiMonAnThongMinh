@@ -1,9 +1,12 @@
 package hung.edu.mealmindai.repositories;
 
+import android.util.Log;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +14,7 @@ import java.util.Map;
 import hung.edu.mealmindai.models.Recipe;
 
 public class RecipeRepository {
-
+    private static final String TAG = "RecipeRepository";
     private final FirebaseFirestore firestore;
 
     public RecipeRepository() {
@@ -20,7 +23,6 @@ public class RecipeRepository {
 
     public interface RecipeCallback {
         void onSuccess(List<Recipe> recipes);
-
         void onError(Exception exception);
     }
 
@@ -31,10 +33,16 @@ public class RecipeRepository {
                 .addOnSuccessListener(querySnapshot -> {
                     Map<String, Recipe> uniqueRecipes = new LinkedHashMap<>();
                     for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        Recipe recipe = mapDocumentToRecipe(document);
-                        String uniqueKey = buildUniqueRecipeKey(recipe);
-                        if (!uniqueRecipes.containsKey(uniqueKey)) {
-                            uniqueRecipes.put(uniqueKey, recipe);
+                        try {
+                            Recipe recipe = mapRecipeDocument(document);
+                            if (recipe.getName() != null || recipe.getTitle() != null) {
+                                String uniqueKey = buildUniqueRecipeKey(recipe);
+                                if (!uniqueRecipes.containsKey(uniqueKey)) {
+                                    uniqueRecipes.put(uniqueKey, recipe);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error deserializing recipe: " + e.getMessage());
                         }
                     }
                     callback.onSuccess(new ArrayList<>(uniqueRecipes.values()));
@@ -42,97 +50,115 @@ public class RecipeRepository {
                 .addOnFailureListener(callback::onError);
     }
 
-    private Recipe mapDocumentToRecipe(DocumentSnapshot document) {
-        Recipe recipe = new Recipe();
+    public void submitRecipeForReview(Recipe recipe, RecipeActionCallback callback) {
+        if (recipe == null) {
+            callback.onError(new Exception("Công thức không hợp lệ"));
+            return;
+        }
 
-        String recipeId = document.getString("recipeId");
-        recipe.setRecipeId(isEmpty(recipeId) ? document.getId() : recipeId);
-        recipe.setName(document.getString("name"));
-        recipe.setTitle(document.getString("name"));
-        recipe.setDescription(document.getString("description"));
-        recipe.setImageUrl(resolveRecipeImage(recipe.getName(), document.getString("imageUrl")));
-        recipe.setCategoryId(document.getString("categoryId"));
-        recipe.setIngredients(toStringList(document.get("ingredients")));
-        recipe.setSteps(toStringList(document.get("steps")));
-        recipe.setCalories(toInteger(document.get("calories")));
-        recipe.setEstimatedCost(toDouble(document.get("estimatedCost")));
-        recipe.setCookingTime(toInteger(document.get("cookingTime")));
-        recipe.setDifficulty(document.getString("difficulty"));
-        recipe.setAuthorId(document.getString("authorId"));
-        recipe.setAuthorName(document.getString("authorName"));
-        recipe.setStatus(document.getString("status"));
-        recipe.setLikeCount(toInteger(document.get("likeCount")));
-        recipe.setCreatedAtTimestamp(document.getTimestamp("createdAt"));
+        firestore.collection("recipes")
+                .add(buildPendingRecipeData(recipe))
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Đã gửi món ăn chờ duyệt: " + documentReference.getId());
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(callback::onError);
+    }
 
-        return recipe;
+    public interface RecipeActionCallback {
+        void onSuccess();
+        void onError(Exception e);
+    }
+
+    private Map<String, Object> buildPendingRecipeData(Recipe recipe) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", safeString(recipe.getName()));
+        data.put("title", safeString(recipe.getTitle()));
+        data.put("description", safeString(recipe.getDescription()));
+        data.put("imageUrl", safeString(recipe.getImageUrl()));
+        data.put("calories", recipe.getCalories() != null ? recipe.getCalories() : 0);
+        data.put("estimatedCost", recipe.getEstimatedCost() != null ? recipe.getEstimatedCost() : 0.0);
+        data.put("cookingTime", recipe.getCookingTime() != null ? recipe.getCookingTime() : 0);
+        data.put("difficulty", safeString(recipe.getDifficulty()));
+        data.put("categoryId", safeString(recipe.getCategoryId()));
+        data.put("ingredients", recipe.getIngredients() != null ? recipe.getIngredients() : new ArrayList<String>());
+        data.put("steps", recipe.getSteps() != null ? recipe.getSteps() : new ArrayList<String>());
+        data.put("authorId", safeString(recipe.getAuthorId()));
+        data.put("authorName", safeString(recipe.getAuthorName()));
+        data.put("status", "pending");
+        data.put("likeCount", 0);
+        data.put("createdAt", FieldValue.serverTimestamp());
+        data.put("updatedAt", FieldValue.serverTimestamp());
+        return data;
+    }
+
+    private String safeString(String value) {
+        return value == null ? "" : value;
     }
 
     private String buildUniqueRecipeKey(Recipe recipe) {
         String name = recipe.getName();
-        if (!isEmpty(name)) {
+        if (name != null && !name.trim().isEmpty()) {
             return name.trim().toLowerCase();
         }
         return recipe.getRecipeId();
     }
 
-    private String resolveRecipeImage(String recipeName, String currentImageUrl) {
-        String sampleImageUrl = getSampleImageUrl(recipeName);
-        if (!isEmpty(sampleImageUrl)) {
-            return sampleImageUrl;
-        }
-        return currentImageUrl;
+    public static Recipe mapRecipeDocument(DocumentSnapshot document) {
+        Recipe recipe = new Recipe();
+        recipe.setRecipeId(firstNonEmpty(document.getString("recipeId"), document.getId()));
+        recipe.setName(firstNonEmpty(document.getString("name"), document.getString("title")));
+        recipe.setTitle(firstNonEmpty(document.getString("title"), document.getString("name")));
+        recipe.setDescription(document.getString("description"));
+        recipe.setImageUrl(document.getString("imageUrl"));
+        recipe.setCategoryId(document.getString("categoryId"));
+        recipe.setIngredients(toStringList(document.get("ingredients")));
+        recipe.setSteps(toStringList(document.get("steps")));
+        recipe.setCalories(toInteger(document.get("calories")));
+        recipe.setEstimatedCost(toDouble(document.get("estimatedCost")));
+        recipe.setCookingTime(firstNonNullInteger(document.get("cookingTime"), document.get("cookingTimeMinutes")));
+        recipe.setCookingTimeMinutes(toInteger(document.get("cookingTimeMinutes")));
+        recipe.setProtein(toDouble(document.get("protein")));
+        recipe.setCarbs(toDouble(document.get("carbs")));
+        recipe.setFat(toDouble(document.get("fat")));
+        recipe.setServingSize(toInteger(document.get("servingSize")));
+        recipe.setDifficulty(document.getString("difficulty"));
+        recipe.setTags(toStringList(document.get("tags")));
+        recipe.setAuthorId(firstNonEmpty(document.getString("authorId"), document.getString("createdBy")));
+        recipe.setAuthorName(document.getString("authorName"));
+        recipe.setStatus(document.getString("status"));
+        recipe.setLikeCount(toInteger(document.get("likeCount")));
+        recipe.setCreatedBy(document.getString("createdBy"));
+        recipe.setAiGenerated(document.getBoolean("aiGenerated"));
+        recipe.setCreatedAt(document.getTimestamp("createdAt"));
+        recipe.setUpdatedAt(document.getTimestamp("updatedAt"));
+        recipe.setReviewedAt(document.getTimestamp("reviewedAt"));
+        recipe.setReviewedBy(document.getString("reviewedBy"));
+        recipe.setRejectReason(document.getString("rejectReason"));
+        return recipe;
     }
 
-    private String getSampleImageUrl(String recipeName) {
-        if (isEmpty(recipeName)) {
-            return null;
-        }
-
-        switch (recipeName.trim().toLowerCase()) {
-            case "trứng sốt cà chua":
-                return "res://trungsotcachua";
-            case "cơm rang trứng":
-                return "https://images.pexels.com/photos/28503599/pexels-photo-28503599.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            case "canh rau ngót thịt băm":
-                return "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            case "salad ức gà":
-                return "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            case "mì xào rau củ":
-                return "https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            case "đậu hũ sốt cà":
-                return "res://dauhuca";
-            case "cháo thịt băm":
-                return "res://chaobam";
-            case "cá kho tiêu":
-                return "https://images.pexels.com/photos/262959/pexels-photo-262959.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            case "gà xào sả ớt":
-                return "res://gaxaosa";
-            case "rau luộc trứng":
-                return "https://images.pexels.com/photos/257816/pexels-photo-257816.jpeg?auto=compress&cs=tinysrgb&w=1200";
-            default:
-                return null;
-        }
+    private static Integer firstNonNullInteger(Object first, Object second) {
+        Integer value = toInteger(first);
+        return value != null ? value : toInteger(second);
     }
 
-    private boolean isEmpty(String value) {
-        return value == null || value.trim().isEmpty();
-    }
-
-    private Integer toInteger(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+    private static String firstNonEmpty(String first, String second) {
+        if (first != null && !first.trim().isEmpty()) {
+            return first;
         }
-        return 0;
+        return second;
     }
 
-    private Double toDouble(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        return 0.0;
+    private static Integer toInteger(Object value) {
+        return value instanceof Number ? ((Number) value).intValue() : null;
     }
 
-    private List<String> toStringList(Object value) {
+    private static Double toDouble(Object value) {
+        return value instanceof Number ? ((Number) value).doubleValue() : null;
+    }
+
+    private static List<String> toStringList(Object value) {
         List<String> result = new ArrayList<>();
         if (value instanceof List<?>) {
             for (Object item : (List<?>) value) {

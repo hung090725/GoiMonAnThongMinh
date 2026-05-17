@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back_dark">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thống kê hệ thống"
+                android:textColor="#263238"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tổng quan dữ liệu MealMind AI"
+                android:textColor="#6B7280"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonRefreshStatistics"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginTop="14dp"
+                android:text="Làm mới"
+                android:textAllCaps="false"
+                android:textColor="#2E7D32"
+                app:backgroundTint="#E8F5E9"
+                app:cornerRadius="14dp" />
+
+            <ProgressBar
+                android:id="@+id/progressStatistics"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="32dp"
+                android:indeterminateTint="#2E7D32"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/textStatisticsError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_fragment_card"
+                android:gravity="center"
+                android:padding="22dp"
+                android:textColor="#C62828"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <GridLayout
+                android:id="@+id/layoutStatisticsContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:columnCount="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_stat_card"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Người dùng"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatTotalUsers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#2E7D32"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_stat_card"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tổng món"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatTotalRecipes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#FF9800"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_metric_green"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đã duyệt"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatApprovedRecipes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#2E7D32"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_metric_orange"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chờ duyệt"
+                        android:textColor="#FF9800"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatPendingRecipes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#FF9800"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_metric_orange"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Từ chối"
+                        android:textColor="#FF9800"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatRejectedRecipes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#FF9800"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_stat_card"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đã ẩn"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatHiddenRecipes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#4B5563"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_metric_green"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yêu thích"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatFavorites"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#2E7D32"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="116dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:background="@drawable/bg_stat_card"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử tìm"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/textStatSearchHistory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="0"
+                        android:textColor="#4B5563"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </GridLayout>
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

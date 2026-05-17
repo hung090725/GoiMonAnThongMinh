@@ -8,14 +8,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import hung.edu.mealmindai.models.User;
 
-/**
- * Repository xử lý thông tin người dùng trong Firestore.
- * Sử dụng mapping thủ công để tránh lỗi ép kiểu (Long/Double) từ Firestore.
- */
 public class UserRepository {
     private static final String TAG = "UserRepository";
     private static final String COLLECTION_USERS = "users";
@@ -50,10 +48,10 @@ public class UserRepository {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         try {
-                            User user = mapSnapshotToUser(documentSnapshot);
+                            User user = mapUserDocument(documentSnapshot);
                             callback.onSuccess(user);
                         } catch (Exception e) {
-                            Log.e(TAG, "Lỗi map user: " + e.getMessage());
+                            Log.e(TAG, "Error deserializing user: " + e.getMessage());
                             callback.onError(e);
                         }
                     } else {
@@ -63,36 +61,59 @@ public class UserRepository {
                 .addOnFailureListener(callback::onError);
     }
 
-    private User mapSnapshotToUser(DocumentSnapshot doc) {
+    private User mapUserDocument(DocumentSnapshot document) {
         User user = new User();
-        user.setUid(doc.getId());
-        user.setFullName(doc.getString("fullName"));
-        user.setEmail(doc.getString("email"));
-        user.setHealthGoal(doc.getString("healthGoal"));
-        
-        // Xử lý an toàn các kiểu số (Firestore có thể trả về Long hoặc Double)
-        user.setHeight(toDouble(doc.get("height")));
-        user.setWeight(toDouble(doc.get("weight")));
-        user.setMonthlyFoodBudget(toDouble(doc.get("monthlyFoodBudget")));
-        user.setMealBudget(toDouble(doc.get("mealBudget")));
-        user.setAvailableTime(toInteger(doc.get("availableTime")));
-        
-        user.setUpdatedAt(doc.get("updatedAt"));
+        user.setUid(firstNonEmpty(document.getString("uid"), document.getId()));
+        user.setUserId(document.getString("userId"));
+        user.setFullName(document.getString("fullName"));
+        user.setEmail(document.getString("email"));
+        user.setAvatarUrl(document.getString("avatarUrl"));
+        user.setPhotoUrl(document.getString("photoUrl"));
+        user.setHeight(toDouble(document.get("height")));
+        user.setWeight(toDouble(document.get("weight")));
+        user.setHealthGoal(document.getString("healthGoal"));
+        user.setMonthlyFoodBudget(toDouble(document.get("monthlyFoodBudget")));
+        user.setMealBudget(toDouble(document.get("mealBudget")));
+        user.setAvailableTime(toInteger(document.get("availableTime")));
+        user.setRole(document.getString("role"));
+        user.setAge(toInteger(document.get("age")));
+        user.setGender(document.getString("gender"));
+        user.setHeightCm(toDouble(document.get("heightCm")));
+        user.setWeightKg(toDouble(document.get("weightKg")));
+        user.setGoal(document.getString("goal"));
+        user.setDietaryPreference(document.getString("dietaryPreference"));
+        user.setAllergies(toStringList(document.get("allergies")));
+        user.setFavoriteCategoryIds(toStringList(document.get("favoriteCategoryIds")));
+        user.setCreatedAt(document.getTimestamp("createdAt"));
+        user.setUpdatedAt(document.getTimestamp("updatedAt"));
         return user;
     }
 
-    private Double toDouble(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
+    private String firstNonEmpty(String first, String second) {
+        if (first != null && !first.trim().isEmpty()) {
+            return first;
         }
-        return null;
+        return second;
     }
 
     private Integer toInteger(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+        return value instanceof Number ? ((Number) value).intValue() : null;
+    }
+
+    private Double toDouble(Object value) {
+        return value instanceof Number ? ((Number) value).doubleValue() : null;
+    }
+
+    private List<String> toStringList(Object value) {
+        List<String> result = new ArrayList<>();
+        if (value instanceof List<?>) {
+            for (Object item : (List<?>) value) {
+                if (item != null) {
+                    result.add(item.toString());
+                }
+            }
         }
-        return null;
+        return result;
     }
 
     public void updateHealthProfile(Double height, Double weight, String healthGoal, 

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back_dark">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết món ăn"
+                android:textColor="#263238"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/adminDetailContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="26dp"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageAdminDetail"
+                android:layout_width="match_parent"
+                android:layout_height="226dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_meal_placeholder" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/textAdminDetailName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#263238"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#6B7280"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_recipe_chip"
+                    android:padding="12dp"
+                    android:textColor="#2E7D32"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailAuthor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="#FF9800"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailReviewInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailRejectReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="#FFEBEE"
+                    android:padding="12dp"
+                    android:textColor="#C62828" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="Nguyên liệu"
+                    android:textColor="#263238"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailIngredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_fragment_card"
+                    android:lineSpacingExtra="5dp"
+                    android:padding="16dp"
+                    android:textColor="#263238" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="Cách làm"
+                    android:textColor="#263238"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textAdminDetailSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_fragment_card"
+                    android:lineSpacingExtra="6dp"
+                    android:padding="16dp"
+                    android:textColor="#263238" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonAdminRecipePrimaryAction"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="20dp"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    app:backgroundTint="#2E7D32"
+                    app:cornerRadius="18dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonAdminRecipePendingAction"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:textAllCaps="false"
+                    android:textColor="#2E7D32"
+                    android:textStyle="bold"
+                    app:backgroundTint="#E8F5E9"
+                    app:cornerRadius="18dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressAdminDetail"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="#2E7D32"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textAdminDetailError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="28dp"
+        android:background="@drawable/bg_fragment_card"
+        android:gravity="center"
+        android:padding="20dp"
+        android:textColor="#FF9800"
+        android:textStyle="bold"
+        android:visibility="gone" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

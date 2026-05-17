@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_auth_screen"
+    android:background="#F8F9FA"
     android:fillViewport="true"
-    android:overScrollMode="never"
-    android:scrollbars="none"
-    tools:context=".activities.AdminDashboardActivity"
-    tools:theme="@style/Theme.MealMindAI.Preview">
+    android:scrollbars="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="760dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="28dp">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -43,50 +39,66 @@
                 android:background="@drawable/bg_admin_leaf_light"
                 android:rotation="-12" />
 
-            <View
-                android:layout_width="52dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="112dp"
-                android:layout_marginBottom="36dp"
-                android:alpha="0.32"
-                android:background="@drawable/bg_admin_leaf_orange"
-                android:rotation="24" />
-
             <TextView
                 android:layout_width="58dp"
                 android:layout_height="58dp"
                 android:layout_gravity="start|top"
                 android:background="@drawable/bg_admin_badge_light"
                 android:gravity="center"
-                android:text="@string/auth_brand_badge"
-                android:textColor="@color/primary_green"
+                android:text="MM"
+                android:textColor="#2E7D32"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonAdminLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="14dp"
+                android:text="Đăng xuất"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#1B5E20"
+                app:cornerRadius="14dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_marginBottom="38dp"
+                android:layout_marginBottom="34dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/admin_dashboard_title"
-                    android:textColor="@color/white"
-                    android:textSize="27sp"
+                    android:text="Bảng quản lý"
+                    android:textColor="#FFFFFF"
+                    android:textSize="28sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_width="300dp"
+                    android:layout_width="310dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:lineSpacingExtra="2dp"
-                    android:text="@string/admin_dashboard_subtitle"
-                    android:textColor="@color/soft_mint"
+                    android:text="Quản lý món ăn, danh mục và cộng đồng MealMind AI"
+                    android:textColor="#E8F5E9"
                     android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/textAdminName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_recipe_chip"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:text="Admin"
+                    android:textColor="#2E7D32"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </FrameLayout>
 
@@ -95,10 +107,10 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="-28dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="28dp"
             app:cardElevation="8dp"
-            app:strokeColor="@color/card_stroke"
+            app:strokeColor="#E5E7EB"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -110,139 +122,154 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/admin_today_overview"
-                    android:textColor="@color/text_primary"
+                    android:text="Tổng quan hôm nay"
+                    android:textColor="#263238"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <LinearLayout
+                <ProgressBar
+                    android:id="@+id/progressAdminStats"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="14dp"
+                    android:indeterminateTint="#2E7D32"
+                    android:visibility="gone" />
+
+                <GridLayout
+                    android:id="@+id/gridAdminStats"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:layout_marginTop="18dp"
-                    android:background="@drawable/bg_metric_green"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="18dp">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:columnCount="2">
 
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/textStatPending"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_height="76dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/bg_metric_orange"
+                        android:gravity="center"
+                        android:textColor="#FF9800"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/admin_metric_recipes"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/admin_metric_recipes_value"
-                            android:textColor="@color/primary_green"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_dot_green" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_metric_orange"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="18dp">
-
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/textStatApproved"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_height="76dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/bg_metric_green"
+                        android:gravity="center"
+                        android:textColor="#2E7D32"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/admin_metric_users"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/admin_metric_users_value"
-                            android:textColor="@color/accent_orange"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_dot_orange" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_metric_green"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="18dp">
-
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/textStatRejected"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_height="76dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/bg_metric_orange"
+                        android:gravity="center"
+                        android:textColor="#FF9800"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/admin_metric_ai"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/textStatUsers"
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/bg_metric_green"
+                        android:gravity="center"
+                        android:textColor="#2E7D32"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/admin_metric_ai_value"
-                            android:textColor="@color/primary_green_dark"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_dot_green" />
-                </LinearLayout>
+                    <TextView
+                        android:id="@+id/textStatHidden"
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/bg_metric_green"
+                        android:gravity="center"
+                        android:textColor="#4B5563"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </GridLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.button.MaterialButton
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginHorizontal="44dp"
-            android:layout_marginTop="34dp"
-            android:text="@string/admin_add_recipe"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/primary_green"
-            app:cornerRadius="18dp"
-            app:elevation="4dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonPendingRecipes"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Món chờ duyệt"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                app:backgroundTint="#2E7D32"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonAdminAddRecipe"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Thêm món mới"
+                android:textAllCaps="false"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"
+                app:backgroundTint="#E8F5E9"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonManageRecipes"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Quản lý món ăn"
+                android:textAllCaps="false"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"
+                app:backgroundTint="#E8F5E9"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonManageCategories"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Quản lý danh mục"
+                android:textAllCaps="false"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"
+                app:backgroundTint="#FFF3E0"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonStatistics"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Thống kê hệ thống"
+                android:textAllCaps="false"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"
+                app:backgroundTint="#E8F5E9"
+                app:cornerRadius="18dp" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

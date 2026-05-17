@@ -1,5 +1,6 @@
 package hung.edu.mealmindai.models;
 
+import com.google.firebase.Timestamp;
 import java.util.List;
 
 /**
@@ -32,9 +33,9 @@ public class User {
     private String dietaryPreference;
     private List<String> allergies;
     private List<String> favoriteCategoryIds;
-    // Audit timestamps in epoch milliseconds.
-    private Long createdAt;
-    private Object updatedAt; // Dùng Object để nhận ServerTimestamp từ Firestore
+    // Audit timestamps using Firestore Timestamp for direct deserialization.
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     /**
      * Required empty constructor for Firebase.
@@ -44,7 +45,7 @@ public class User {
 
     public User(String uid, String fullName, String email, String avatarUrl, Double height,
                 Double weight, String healthGoal, Double monthlyFoodBudget, String role,
-                Long createdAt) {
+                Timestamp createdAt) {
         this.uid = uid;
         this.fullName = fullName;
         this.email = email;
@@ -55,26 +56,6 @@ public class User {
         this.monthlyFoodBudget = monthlyFoodBudget;
         this.role = role;
         this.createdAt = createdAt;
-    }
-
-    public User(String userId, String fullName, String email, String photoUrl, Integer age,
-                String gender, Double heightCm, Double weightKg, String goal,
-                String dietaryPreference, List<String> allergies, List<String> favoriteCategoryIds,
-                Long createdAt, Long updatedAt) {
-        this.userId = userId;
-        this.fullName = fullName;
-        this.email = email;
-        this.photoUrl = photoUrl;
-        this.age = age;
-        this.gender = gender;
-        this.heightCm = heightCm;
-        this.weightKg = weightKg;
-        this.goal = goal;
-        this.dietaryPreference = dietaryPreference;
-        this.allergies = allergies;
-        this.favoriteCategoryIds = favoriteCategoryIds;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public String getUid() {
@@ -229,11 +210,11 @@ public class User {
         this.favoriteCategoryIds = favoriteCategoryIds;
     }
 
-    public Long getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -253,11 +234,11 @@ public class User {
         this.availableTime = availableTime;
     }
 
-    public Object getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Object updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

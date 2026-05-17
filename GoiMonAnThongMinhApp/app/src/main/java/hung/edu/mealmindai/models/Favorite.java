@@ -1,5 +1,7 @@
 package hung.edu.mealmindai.models;
 
+import com.google.firebase.Timestamp;
+
 /**
  * User favorite recipe stored in the favorites collection.
  */
@@ -9,7 +11,7 @@ public class Favorite {
     // Links a user to a recipe.
     private String userId;
     private String recipeId;
-    private Long createdAt;
+    private Timestamp createdAt;
 
     /**
      * Required empty constructor for Firebase.
@@ -17,7 +19,7 @@ public class Favorite {
     public Favorite() {
     }
 
-    public Favorite(String favoriteId, String userId, String recipeId, Long createdAt) {
+    public Favorite(String favoriteId, String userId, String recipeId, Timestamp createdAt) {
         this.favoriteId = favoriteId;
         this.userId = userId;
         this.recipeId = recipeId;
@@ -48,11 +50,11 @@ public class Favorite {
         this.recipeId = recipeId;
     }
 
-    public Long getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 }

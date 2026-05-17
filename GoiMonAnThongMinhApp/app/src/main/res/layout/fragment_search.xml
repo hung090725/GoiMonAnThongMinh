@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/auth_background"
@@ -33,7 +32,7 @@
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
-        <!-- Search Card -->
+        <!-- Search Input Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,9 +45,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp"
-                android:gravity="center_vertical">
+                android:padding="12dp">
 
                 <EditText
                     android:id="@+id/editIngredientsInput"
@@ -58,26 +57,43 @@
                     android:background="@null"
                     android:hint="@string/search_placeholder"
                     android:inputType="text"
-                    android:paddingVertical="10dp"
                     android:paddingHorizontal="8dp"
+                    android:paddingVertical="10dp"
                     android:textSize="15sp" />
 
+                <!-- Nút Micro -->
                 <ImageButton
                     android:id="@+id/buttonVoiceSearch"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_mic_button"
                     android:contentDescription="@string/search_voice"
-                    android:src="@drawable/ic_nav_community"
-                    app:tint="@color/text_secondary" />
+                    android:padding="10dp"
+                    android:src="@drawable/ic_mic"
+                    app:tint="@color/primary_green" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Trạng thái đang nghe -->
+        <TextView
+            android:id="@+id/textVoiceStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/voice_hint"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:drawableStart="@drawable/ic_mic"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSearchRecipes"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:text="@string/search_action"
             android:textAllCaps="false"
             android:textSize="16sp"
@@ -113,7 +129,6 @@
             android:indeterminateTint="@color/primary_green"
             android:visibility="gone" />
 
-        <!-- Recycler results -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerSearchResults"
             android:layout_width="match_parent"

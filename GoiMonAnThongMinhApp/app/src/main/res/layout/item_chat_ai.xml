@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="6dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MealMind AI"
+        android:textColor="#2E7D32"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textChatMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="42dp"
+        android:background="@drawable/bg_chat_ai"
+        android:elevation="2dp"
+        android:lineSpacingExtra="3dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
+        android:textColor="#263238"
+        android:textSize="15sp" />
+</LinearLayout>

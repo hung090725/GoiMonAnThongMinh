@@ -38,6 +38,11 @@
     <string name="home_question">Hôm nay bạn muốn ăn gì?</string>
     <string name="home_intro_title">MealMind AI</string>
     <string name="home_intro_desc">Chọn món phù hợp hơn với khẩu vị, chi phí và thời gian nấu của bạn.</string>
+    <string name="smart_chat_open">Hỏi MealMind AI</string>
+    <string name="smart_chat_subtitle">Trợ lý gợi ý món ăn thông minh</string>
+    <string name="smart_chat_example">Ví dụ: Tôi có trứng, cà chua, muốn ăn dưới 30k</string>
+    <string name="smart_chat_input_hint">Nhập nguyên liệu hoặc nhu cầu món ăn</string>
+    <string name="smart_chat_send">Gửi</string>
     <string name="home_recipe_section">Món gợi ý hôm nay</string>
     <string name="home_empty_recipes">Chưa có món ăn nào</string>
     <string name="home_error_recipes">Không thể tải danh sách món ăn</string>
@@ -115,4 +120,10 @@
     <string name="search_empty_state">Nhập nguyên liệu để MealMind AI gợi ý món phù hợp</string>
     <string name="search_no_result">Chưa tìm thấy món phù hợp với nguyên liệu của bạn</string>
     <string name="search_error">Lỗi khi tìm kiếm món ăn</string>
+    <!-- B12 Voice Input -->
+    <string name="voice_hint">Bạn có thể nói: trứng, cà chua, cơm</string>
+    <string name="voice_listening">🎙 Đang nghe... Hãy nói nguyên liệu</string>
+    <string name="voice_ready">🎙 Sẵn sàng nghe...</string>
+    <string name="voice_permission_denied">Cần quyền micro để nhập nguyên liệu bằng giọng nói</string>
+    <string name="voice_not_supported">Thiết bị không hỗ trợ nhận diện giọng nói</string>
 </resources>

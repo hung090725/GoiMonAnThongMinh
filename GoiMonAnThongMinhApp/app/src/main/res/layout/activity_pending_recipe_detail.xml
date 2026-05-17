@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back_dark">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết kiểm duyệt"
+                android:textColor="#263238"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/pendingDetailContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="28dp"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imagePendingDetail"
+                android:layout_width="match_parent"
+                android:layout_height="236dp"
+                android:contentDescription="Ảnh món cần duyệt"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_meal_placeholder" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="#E5E7EB"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <TextView
+                            android:id="@+id/textPendingDetailName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#263238"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textPendingDetailDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="#6B7280"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/textPendingDetailStats"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_recipe_chip"
+                            android:padding="12dp"
+                            android:textColor="#2E7D32"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textPendingDetailAuthor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:textColor="#6B7280"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/textPendingDetailStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="#FF9800"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_fragment_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nguyên liệu"
+                        android:textColor="#263238"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textPendingDetailIngredients"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:lineSpacingExtra="5dp"
+                        android:textColor="#263238"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_fragment_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cách làm"
+                        android:textColor="#263238"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textPendingDetailSteps"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="#263238"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_fragment_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin kiểm duyệt"
+                        android:textColor="#263238"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textModerationMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Món này đã được xử lý"
+                        android:textColor="#6B7280"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonApproveRecipe"
+                            android:layout_width="0dp"
+                            android:layout_height="54dp"
+                            android:layout_weight="1"
+                            android:text="Duyệt món"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            app:backgroundTint="#2E7D32"
+                            app:cornerRadius="16dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonRejectRecipe"
+                            android:layout_width="0dp"
+                            android:layout_height="54dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:text="Từ chối"
+                            android:textAllCaps="false"
+                            android:textColor="#C62828"
+                            android:textStyle="bold"
+                            app:backgroundTint="#FFEBEE"
+                            app:cornerRadius="16dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressPendingDetail"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="#2E7D32"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textPendingDetailError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="28dp"
+        android:background="@drawable/bg_fragment_card"
+        android:gravity="center"
+        android:padding="20dp"
+        android:textColor="#FF9800"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,5 +1,6 @@
 package hung.edu.mealmindai.models;
 
+import com.google.firebase.Timestamp;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ public class SearchHistory {
     // Optional Firestore map for filters such as category or calories.
     private Map<String, Object> filters;
     private Integer resultCount;
-    private Long searchedAt;
+    private Timestamp searchedAt;
 
     /**
      * Required empty constructor for Firebase.
@@ -23,7 +24,7 @@ public class SearchHistory {
     }
 
     public SearchHistory(String searchHistoryId, String userId, String keyword,
-                         Map<String, Object> filters, Integer resultCount, Long searchedAt) {
+                         Map<String, Object> filters, Integer resultCount, Timestamp searchedAt) {
         this.searchHistoryId = searchHistoryId;
         this.userId = userId;
         this.keyword = keyword;
@@ -72,11 +73,11 @@ public class SearchHistory {
         this.resultCount = resultCount;
     }
 
-    public Long getSearchedAt() {
+    public Timestamp getSearchedAt() {
         return searchedAt;
     }
 
-    public void setSearchedAt(Long searchedAt) {
+    public void setSearchedAt(Timestamp searchedAt) {
         this.searchedAt = searchedAt;
     }
 }

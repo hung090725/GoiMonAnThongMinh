@@ -32,7 +32,7 @@ public class SearchHistoryRepository {
         history.put("userId", currentUser.getUid());
         history.put("inputText", inputText);
         history.put("ingredients", ingredients);
-        history.put("createdAt", FieldValue.serverTimestamp());
+        history.put("searchedAt", FieldValue.serverTimestamp());
 
         db.collection(COLLECTION_HISTORY)
                 .add(history)

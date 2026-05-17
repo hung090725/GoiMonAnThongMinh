@@ -1,7 +1,6 @@
 package hung.edu.mealmindai.models;
 
 import com.google.firebase.Timestamp;
-
 import java.util.List;
 
 /**
@@ -36,9 +35,11 @@ public class Recipe {
     private Integer likeCount;
     private String createdBy;
     private Boolean aiGenerated;
-    private Long createdAt;
-    private Timestamp createdAtTimestamp;
-    private Long updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
+    private Timestamp reviewedAt;
+    private String reviewedBy;
+    private String rejectReason;
 
     /**
      * Required empty constructor for Firebase.
@@ -51,7 +52,7 @@ public class Recipe {
                   Integer calories, Double protein, Double carbs, Double fat,
                   Integer cookingTimeMinutes, Integer servingSize, String difficulty,
                   List<String> tags, String createdBy, Boolean aiGenerated,
-                  Long createdAt, Long updatedAt) {
+                  Timestamp createdAt, Timestamp updatedAt) {
         this.recipeId = recipeId;
         this.title = title;
         this.description = description;
@@ -265,27 +266,43 @@ public class Recipe {
         this.aiGenerated = aiGenerated;
     }
 
-    public Long getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getCreatedAtTimestamp() {
-        return createdAtTimestamp;
-    }
-
-    public void setCreatedAtTimestamp(Timestamp createdAtTimestamp) {
-        this.createdAtTimestamp = createdAtTimestamp;
-    }
-
-    public Long getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Timestamp getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(Timestamp reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
+    public String getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(String reviewedBy) {
+        this.reviewedBy = reviewedBy;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
     }
 }

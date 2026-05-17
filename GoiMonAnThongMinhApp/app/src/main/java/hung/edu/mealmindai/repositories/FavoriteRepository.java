@@ -11,8 +11,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import hung.edu.mealmindai.models.Recipe;
 
@@ -33,10 +35,6 @@ public class FavoriteRepository {
         this.auth = FirebaseAuth.getInstance();
     }
 
-    // -------------------------------------------------------------------------
-    // Callback Interfaces
-    // -------------------------------------------------------------------------
-
     public interface FavoriteCheckCallback {
         void onResult(boolean isFavorited, String favoriteId);
         void onError(Exception e);
@@ -52,13 +50,6 @@ public class FavoriteRepository {
         void onError(Exception e);
     }
 
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Kiểm tra xem user hiện tại đã yêu thích món ăn này chưa.
-     */
     public void checkFavorite(String recipeId, FavoriteCheckCallback callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
@@ -90,9 +81,6 @@ public class FavoriteRepository {
                 });
     }
 
-    /**
-     * Thêm món ăn vào danh sách yêu thích.
-     */
     public void addFavorite(String recipeId, FavoriteActionCallback callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
@@ -105,26 +93,56 @@ public class FavoriteRepository {
             return;
         }
 
-        Map<String, Object> favoriteData = new HashMap<>();
-        favoriteData.put("userId", currentUser.getUid());
-        favoriteData.put("recipeId", recipeId);
-        favoriteData.put("createdAt", FieldValue.serverTimestamp());
-
-        db.collection(COLLECTION_FAVORITES)
-                .add(favoriteData)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Đã thêm yêu thích: " + documentReference.getId());
+        checkFavorite(recipeId, new FavoriteCheckCallback() {
+            @Override
+            public void onResult(boolean isFavorited, String favoriteId) {
+                if (isFavorited) {
                     callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Lỗi thêm yêu thích: " + e.getMessage(), e);
-                    callback.onError(e);
-                });
+                    return;
+                }
+
+                Map<String, Object> favoriteData = new HashMap<>();
+                favoriteData.put("userId", currentUser.getUid());
+                favoriteData.put("recipeId", recipeId);
+                favoriteData.put("createdAt", FieldValue.serverTimestamp());
+
+                db.collection(COLLECTION_FAVORITES)
+                        .add(favoriteData)
+                        .addOnSuccessListener(documentReference -> {
+                            Log.d(TAG, "Đã thêm yêu thích: " + documentReference.getId());
+                            callback.onSuccess();
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Lỗi thêm yêu thích: " + e.getMessage(), e);
+                            callback.onError(e);
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
     }
 
-    /**
-     * Xóa món ăn khỏi danh sách yêu thích.
-     */
+    public void removeFavoriteByRecipeId(String recipeId, FavoriteActionCallback callback) {
+        checkFavorite(recipeId, new FavoriteCheckCallback() {
+            @Override
+            public void onResult(boolean isFavorited, String favoriteId) {
+                if (!isFavorited) {
+                    callback.onSuccess();
+                    return;
+                }
+                removeFavorite(favoriteId, callback);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
+    }
+
     public void removeFavorite(String favoriteId, FavoriteActionCallback callback) {
         if (favoriteId == null || favoriteId.isEmpty()) {
             callback.onError(new Exception("Không tìm thấy mã yêu thích"));
@@ -144,12 +162,6 @@ public class FavoriteRepository {
                 });
     }
 
-    /**
-     * Tải danh sách món ăn yêu thích của user hiện tại.
-     * Bước 1: Lấy tất cả favoriteId + recipeId từ collection favorites
-     * Bước 2: Với mỗi recipeId, đọc thông tin chi tiết từ collection recipes
-     * Bước 3: Trả về danh sách Recipe hoàn chỉnh
-     */
     public void loadFavoriteRecipes(FavoriteRecipesCallback callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
@@ -166,7 +178,7 @@ public class FavoriteRepository {
                         return;
                     }
 
-                    List<String> recipeIds = new ArrayList<>();
+                    Set<String> recipeIds = new LinkedHashSet<>();
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String recipeId = doc.getString("recipeId");
                         if (recipeId != null && !recipeId.isEmpty()) {
@@ -179,7 +191,7 @@ public class FavoriteRepository {
                         return;
                     }
 
-                    fetchRecipesByIds(recipeIds, callback);
+                    fetchRecipesByIds(new ArrayList<>(recipeIds), callback);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Lỗi tải danh sách yêu thích: " + e.getMessage(), e);
@@ -187,14 +199,6 @@ public class FavoriteRepository {
                 });
     }
 
-    // -------------------------------------------------------------------------
-    // Private Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Đọc chi tiết các món ăn theo danh sách recipeId.
-     * Sử dụng counter để đồng bộ các request bất đồng bộ.
-     */
     private void fetchRecipesByIds(List<String> recipeIds, FavoriteRecipesCallback callback) {
         List<Recipe> recipes = new ArrayList<>();
         final int[] completedCount = {0};
@@ -206,9 +210,15 @@ public class FavoriteRepository {
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            Recipe recipe = mapDocumentToRecipe(documentSnapshot);
-                            synchronized (recipes) {
-                                recipes.add(recipe);
+                            try {
+                                Recipe recipe = RecipeRepository.mapRecipeDocument(documentSnapshot);
+                                if (recipe.getName() != null || recipe.getTitle() != null) {
+                                    synchronized (recipes) {
+                                        recipes.add(recipe);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error deserializing recipe: " + e.getMessage());
                             }
                         }
                         completedCount[0]++;
@@ -224,49 +234,5 @@ public class FavoriteRepository {
                         }
                     });
         }
-    }
-
-    private Recipe mapDocumentToRecipe(DocumentSnapshot document) {
-        Recipe recipe = new Recipe();
-        recipe.setRecipeId(document.getId());
-        recipe.setName(document.getString("name"));
-        recipe.setTitle(document.getString("name"));
-        recipe.setDescription(document.getString("description"));
-        recipe.setImageUrl(document.getString("imageUrl"));
-        recipe.setCategoryId(document.getString("categoryId"));
-
-        Object caloriesObj = document.get("calories");
-        recipe.setCalories(caloriesObj instanceof Number ? ((Number) caloriesObj).intValue() : 0);
-
-        Object costObj = document.get("estimatedCost");
-        recipe.setEstimatedCost(costObj instanceof Number ? ((Number) costObj).doubleValue() : 0.0);
-
-        Object timeObj = document.get("cookingTime");
-        recipe.setCookingTime(timeObj instanceof Number ? ((Number) timeObj).intValue() : 0);
-
-        recipe.setDifficulty(document.getString("difficulty"));
-        recipe.setAuthorId(document.getString("authorId"));
-        recipe.setAuthorName(document.getString("authorName"));
-        recipe.setStatus(document.getString("status"));
-
-        Object likeCountObj = document.get("likeCount");
-        recipe.setLikeCount(likeCountObj instanceof Number ? ((Number) likeCountObj).intValue() : 0);
-
-        recipe.setIngredients(toStringList(document.get("ingredients")));
-        recipe.setSteps(toStringList(document.get("steps")));
-
-        return recipe;
-    }
-
-    private List<String> toStringList(Object value) {
-        List<String> result = new ArrayList<>();
-        if (value instanceof List<?>) {
-            for (Object item : (List<?>) value) {
-                if (item != null) {
-                    result.add(item.toString());
-                }
-            }
-        }
-        return result;
     }
 }

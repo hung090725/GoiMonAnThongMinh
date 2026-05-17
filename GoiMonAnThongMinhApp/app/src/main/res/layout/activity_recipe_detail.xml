@@ -64,7 +64,9 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingBottom="32dp"
-        android:scrollbars="none"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@drawable/custom_scrollbar_thumb"
+        android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout

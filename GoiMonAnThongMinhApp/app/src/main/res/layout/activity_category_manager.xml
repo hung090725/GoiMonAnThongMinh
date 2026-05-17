@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back_dark">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quản lý danh mục"
+                android:textColor="#263238"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tổ chức nhóm món ăn cho MealMind AI"
+            android:textColor="#6B7280"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonAddCategory"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="14dp"
+            android:text="Thêm danh mục"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:backgroundTint="#2E7D32"
+            app:cornerRadius="16dp" />
+
+        <ProgressBar
+            android:id="@+id/progressCategories"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:indeterminateTint="#2E7D32"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textCategoryState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_fragment_card"
+            android:gravity="center"
+            android:padding="22dp"
+            android:text="Chưa có danh mục"
+            android:textColor="#6B7280"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerCategories"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="18dp"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

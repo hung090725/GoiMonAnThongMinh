@@ -2,6 +2,7 @@ package hung.edu.mealmindai.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,6 +25,7 @@ import java.util.Locale;
 import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
 import hung.edu.mealmindai.repositories.FavoriteRepository;
+import hung.edu.mealmindai.repositories.RecipeRepository;
 
 public class RecipeDetailActivity extends AppCompatActivity {
 
@@ -128,7 +130,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
             if (isFavorited) {
                 // Bỏ yêu thích
-                favoriteRepository.removeFavorite(currentFavoriteId, new FavoriteRepository.FavoriteActionCallback() {
+                FavoriteRepository.FavoriteActionCallback removeCallback = new FavoriteRepository.FavoriteActionCallback() {
                     @Override
                     public void onSuccess() {
                         isFavorited = false;
@@ -144,7 +146,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         Toast.makeText(RecipeDetailActivity.this,
                                 "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                });
+                };
+
+                if (TextUtils.isEmpty(currentFavoriteId)) {
+                    favoriteRepository.removeFavoriteByRecipeId(currentRecipeId, removeCallback);
+                } else {
+                    favoriteRepository.removeFavorite(currentFavoriteId, removeCallback);
+                }
             } else {
                 // Thêm yêu thích
                 favoriteRepository.addFavorite(currentRecipeId, new FavoriteRepository.FavoriteActionCallback() {
@@ -213,8 +221,15 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     setLoading(false);
                     if (documentSnapshot.exists()) {
-                        Recipe recipe = mapDocumentToRecipe(documentSnapshot);
-                        displayRecipe(recipe);
+                        try {
+                            Recipe recipe = RecipeRepository.mapRecipeDocument(documentSnapshot);
+                            if (recipe.getName() != null || recipe.getTitle() != null) {
+                                displayRecipe(recipe);
+                            }
+                        } catch (Exception e) {
+                            Log.e("RecipeDetail", "Error deserializing recipe: " + e.getMessage());
+                            showErrorState(getString(R.string.error_load_recipe));
+                        }
                     } else {
                         showErrorState(getString(R.string.error_load_recipe));
                     }
@@ -240,46 +255,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
         detailScrollView.setVisibility(View.GONE);
         textDetailError.setText(message);
         textDetailError.setVisibility(View.VISIBLE);
-    }
-
-    private Recipe mapDocumentToRecipe(com.google.firebase.firestore.DocumentSnapshot document) {
-        Recipe recipe = new Recipe();
-        recipe.setRecipeId(document.getId());
-        recipe.setName(document.getString("name"));
-        recipe.setDescription(document.getString("description"));
-        recipe.setImageUrl(document.getString("imageUrl"));
-
-        Object caloriesObj = document.get("calories");
-        recipe.setCalories(caloriesObj instanceof Number ? ((Number) caloriesObj).intValue() : 0);
-
-        Object costObj = document.get("estimatedCost");
-        recipe.setEstimatedCost(costObj instanceof Number ? ((Number) costObj).doubleValue() : 0.0);
-
-        Object timeObj = document.get("cookingTime");
-        recipe.setCookingTime(timeObj instanceof Number ? ((Number) timeObj).intValue() : 0);
-        recipe.setDifficulty(document.getString("difficulty"));
-        recipe.setAuthorName(document.getString("authorName"));
-
-        Object likeCountObj = document.get("likeCount");
-        recipe.setLikeCount(likeCountObj instanceof Number ? ((Number) likeCountObj).intValue() : 0);
-
-        recipe.setIngredients(toStringList(document.get("ingredients")));
-        recipe.setSteps(toStringList(document.get("steps")));
-
-        return recipe;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<String> toStringList(Object value) {
-        java.util.ArrayList<String> result = new java.util.ArrayList<>();
-        if (value instanceof List<?>) {
-            for (Object item : (List<?>) value) {
-                if (item != null) {
-                    result.add(item.toString());
-                }
-            }
-        }
-        return result;
     }
 
     private void displayRecipe(Recipe recipe) {

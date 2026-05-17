@@ -31,8 +31,8 @@ public class SeedDataHelper {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
-                        Log.d(TAG, "Collection recipes đã có dữ liệu — cập nhật ảnh mẫu nếu cần.");
-                        refreshSampleRecipeImages(db, onComplete);
+                        Log.d(TAG, "Collection recipes đã có dữ liệu — bỏ qua seed mẫu.");
+                        notifyComplete(onComplete);
                         return;
                     }
                     Log.d(TAG, "Collection recipes rỗng — bắt đầu seed dữ liệu mẫu...");

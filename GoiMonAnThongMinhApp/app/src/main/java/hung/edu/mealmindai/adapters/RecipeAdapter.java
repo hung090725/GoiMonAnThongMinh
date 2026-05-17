@@ -103,8 +103,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             String imageUrl = recipe.getImageUrl();
             Object imageSource = R.drawable.ic_meal_placeholder;
 
-            if (isChickenLemongrass(recipe)) {
-                imageSource = R.drawable.gaxaosa;
+            int localImageRes = getLocalImageForRecipe(recipe);
+            if (localImageRes != 0) {
+                imageSource = localImageRes;
             } else if (!TextUtils.isEmpty(imageUrl)) {
                 if (imageUrl.startsWith("res://")) {
                     String resName = imageUrl.replace("res://", "");
@@ -125,9 +126,23 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
     }
 
-    private boolean isChickenLemongrass(Recipe recipe) {
+    private int getLocalImageForRecipe(Recipe recipe) {
         String name = recipe != null ? recipe.getName() : null;
-        return !TextUtils.isEmpty(name) && name.toLowerCase().contains("gà xào sả ớt");
+        if (TextUtils.isEmpty(name)) {
+            return 0;
+        }
+
+        String normalizedName = name.toLowerCase();
+        if (normalizedName.contains("gà xào sả ớt")) {
+            return R.drawable.gaxaosa;
+        } else if (normalizedName.contains("trứng sốt cà")) {
+            return R.drawable.trungsotcachua;
+        } else if (normalizedName.contains("cháo thịt băm")) {
+            return R.drawable.chaobam;
+        } else if (normalizedName.contains("đậu hũ sốt cà")) {
+            return R.drawable.dauhuca;
+        }
+        return 0;
     }
 
     private String getDisplayName(Recipe recipe) {

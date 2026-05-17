@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="#E5E7EB"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imagePendingRecipe"
+            android:layout_width="match_parent"
+            android:layout_height="154dp"
+            android:contentDescription="Ảnh món chờ duyệt"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_meal_placeholder" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textPendingRecipeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#263238"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textPendingRecipeDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="#6B7280"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textPendingRecipeAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#2E7D32"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textPendingRecipeCost"
+                    style="@style/TextAppearance.MealMind.RecipeChip"
+                    android:background="@drawable/bg_recipe_chip_orange" />
+
+                <TextView
+                    android:id="@+id/textPendingRecipeTime"
+                    style="@style/TextAppearance.MealMind.RecipeChip"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_recipe_chip" />
+
+                <TextView
+                    android:id="@+id/textPendingRecipeDifficulty"
+                    style="@style/TextAppearance.MealMind.RecipeChip"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_recipe_chip" />
+
+                <TextView
+                    style="@style/TextAppearance.MealMind.RecipeChip"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_recipe_chip_orange"
+                    android:text="Chờ duyệt" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
