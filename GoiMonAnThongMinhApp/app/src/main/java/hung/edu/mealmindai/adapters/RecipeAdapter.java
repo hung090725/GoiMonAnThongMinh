@@ -72,6 +72,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         private final TextView textDifficulty;
         private final View layoutSuggestionInfo;
         private final TextView textRecommendationScore;
+        private final TextView textConfidenceLevel;
+        private final TextView textCookabilityLevel;
         private final TextView textMatchedIngredients;
         private final TextView textMissingIngredients;
         private final TextView textRecommendationReason;
@@ -87,6 +89,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             textDifficulty = itemView.findViewById(R.id.textDifficulty);
             layoutSuggestionInfo = itemView.findViewById(R.id.layoutSuggestionInfo);
             textRecommendationScore = itemView.findViewById(R.id.textRecommendationScore);
+            textConfidenceLevel = itemView.findViewById(R.id.textConfidenceLevel);
+            textCookabilityLevel = itemView.findViewById(R.id.textCookabilityLevel);
             textMatchedIngredients = itemView.findViewById(R.id.textMatchedIngredients);
             textMissingIngredients = itemView.findViewById(R.id.textMissingIngredients);
             textRecommendationReason = itemView.findViewById(R.id.textRecommendationReason);
@@ -146,9 +150,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             boolean hasMissingIngredients = recipe.getMissingIngredients() != null
                     && !recipe.getMissingIngredients().isEmpty();
             boolean hasReason = !TextUtils.isEmpty(recipe.getRecommendationReason());
+            boolean hasConfidence = !TextUtils.isEmpty(recipe.getConfidenceLevel());
+            boolean hasCookability = !TextUtils.isEmpty(recipe.getCookabilityLevel());
 
             if (!hasScore && !hasMatchPercent && !hasMatchedIngredients
-                    && !hasMissingIngredients && !hasReason) {
+                    && !hasMissingIngredients && !hasReason && !hasConfidence && !hasCookability) {
                 layoutSuggestionInfo.setVisibility(View.GONE);
                 return;
             }
@@ -176,6 +182,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 textRecommendationScore.setVisibility(View.GONE);
             }
 
+            setTextOrHide(textConfidenceLevel, hasConfidence
+                    ? "Mức phù hợp: " + recipe.getConfidenceLevel() : "");
+            setTextOrHide(textCookabilityLevel, hasCookability
+                    ? "Trạng thái: " + recipe.getCookabilityLevel() : "");
             setListTextOrHide(textMatchedIngredients, "Bạn có: ",
                     recipe.getMatchedIngredients(), 4);
             setListTextOrHide(textMissingIngredients, "Cần bổ sung: ",

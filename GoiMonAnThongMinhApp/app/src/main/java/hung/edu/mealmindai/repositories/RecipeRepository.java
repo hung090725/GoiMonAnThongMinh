@@ -50,6 +50,83 @@ public class RecipeRepository {
                 .addOnFailureListener(callback::onError);
     }
 
+    public void loadRecipesByIds(List<String> recipeIds, RecipeCallback callback) {
+        if (recipeIds == null || recipeIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<String> safeRecipeIds = new ArrayList<>();
+        for (String recipeId : recipeIds) {
+            if (recipeId != null && !recipeId.trim().isEmpty() && !safeRecipeIds.contains(recipeId)) {
+                safeRecipeIds.add(recipeId);
+            }
+        }
+
+        if (safeRecipeIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        Map<String, Recipe> recipesById = new LinkedHashMap<>();
+        final int[] remaining = {safeRecipeIds.size()};
+        final Exception[] firstError = {null};
+
+        for (String recipeId : safeRecipeIds) {
+            firestore.collection("recipes")
+                    .document(recipeId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        try {
+                            if (document.exists()) {
+                                Recipe recipe = mapRecipeDocument(document);
+                                if ("approved".equals(recipe.getStatus())) {
+                                    recipesById.put(recipe.getRecipeId(), recipe);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error mapping recent recipe: " + e.getMessage());
+                            if (firstError[0] == null) {
+                                firstError[0] = e;
+                            }
+                        }
+                        finishLoadRecipesByIds(safeRecipeIds, recipesById, remaining, firstError, callback);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (firstError[0] == null) {
+                            firstError[0] = e;
+                        }
+                        finishLoadRecipesByIds(safeRecipeIds, recipesById, remaining, firstError, callback);
+                    });
+        }
+    }
+
+    private void finishLoadRecipesByIds(
+            List<String> recipeIds,
+            Map<String, Recipe> recipesById,
+            int[] remaining,
+            Exception[] firstError,
+            RecipeCallback callback) {
+        remaining[0]--;
+        if (remaining[0] > 0) {
+            return;
+        }
+
+        if (recipesById.isEmpty() && firstError[0] != null) {
+            callback.onError(firstError[0]);
+            return;
+        }
+
+        List<Recipe> orderedRecipes = new ArrayList<>();
+        for (String id : recipeIds) {
+            Recipe recipe = recipesById.get(id);
+            if (recipe != null) {
+                orderedRecipes.add(recipe);
+            }
+        }
+        callback.onSuccess(orderedRecipes);
+    }
+
     public void submitRecipeForReview(Recipe recipe, RecipeActionCallback callback) {
         if (recipe == null) {
             callback.onError(new Exception("Công thức không hợp lệ"));

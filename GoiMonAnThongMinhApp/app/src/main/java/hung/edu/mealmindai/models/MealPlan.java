@@ -9,6 +9,7 @@ public class MealPlan {
     // User, recipe, and schedule details.
     private String userId;
     private String recipeId;
+    private String recipeName;
     private String mealDate;
     private String mealType;
     private Integer servings;
@@ -60,6 +61,14 @@ public class MealPlan {
 
     public void setRecipeId(String recipeId) {
         this.recipeId = recipeId;
+    }
+
+    public String getRecipeName() {
+        return recipeName;
+    }
+
+    public void setRecipeName(String recipeName) {
+        this.recipeName = recipeName;
     }
 
     public String getMealDate() {

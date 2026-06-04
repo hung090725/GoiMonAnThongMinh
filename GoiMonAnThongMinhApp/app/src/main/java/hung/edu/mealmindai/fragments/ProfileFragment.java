@@ -24,6 +24,8 @@ import hung.edu.mealmindai.activities.EditHealthProfileActivity;
 import hung.edu.mealmindai.activities.LoginActivity;
 import hung.edu.mealmindai.activities.MySubmittedRecipesActivity;
 import hung.edu.mealmindai.activities.NotificationActivity;
+import hung.edu.mealmindai.activities.PantryActivity;
+import hung.edu.mealmindai.activities.TodayMealPlanActivity;
 import hung.edu.mealmindai.models.User;
 import hung.edu.mealmindai.repositories.UserRepository;
 
@@ -34,7 +36,8 @@ public class ProfileFragment extends Fragment {
     private TextView textMonthlyBudget, textMealBudget, textAvailableTime;
     private View layoutContent;
     private ProgressBar progressBar;
-    private Button buttonEdit, buttonLogout, buttonOpenNotifications, buttonOpenAiHistory, buttonOpenMyRecipes;
+    private Button buttonEdit, buttonLogout, buttonOpenNotifications, buttonOpenAiHistory;
+    private Button buttonOpenMyRecipes, buttonOpenTodayPlan, buttonOpenPantry;
 
     private UserRepository userRepository;
     private final DecimalFormat currencyFormat = new DecimalFormat("#,###");
@@ -77,6 +80,8 @@ public class ProfileFragment extends Fragment {
         buttonOpenNotifications = view.findViewById(R.id.buttonOpenNotifications);
         buttonOpenAiHistory = view.findViewById(R.id.buttonOpenAiHistory);
         buttonOpenMyRecipes = view.findViewById(R.id.buttonOpenMyRecipes);
+        buttonOpenTodayPlan = view.findViewById(R.id.buttonOpenTodayPlan);
+        buttonOpenPantry = view.findViewById(R.id.buttonOpenPantry);
     }
 
     private void setupClickListeners() {
@@ -92,6 +97,12 @@ public class ProfileFragment extends Fragment {
 
         buttonOpenMyRecipes.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), MySubmittedRecipesActivity.class)));
+
+        buttonOpenTodayPlan.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), TodayMealPlanActivity.class)));
+
+        buttonOpenPantry.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), PantryActivity.class)));
 
         buttonLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

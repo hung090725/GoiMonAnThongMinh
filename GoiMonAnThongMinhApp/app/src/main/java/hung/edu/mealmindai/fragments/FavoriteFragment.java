@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,8 @@ public class FavoriteFragment extends Fragment {
     private ProgressBar progressFavorites;
     private RecyclerView recyclerFavorites;
     private LinearLayout layoutEmptyFavorites;
-    private TextView textErrorFavorites;
+    private TextView textErrorFavorites, textFavoriteCount, textFavoriteTip;
+    private View rootView;
     private RecipeAdapter recipeAdapter;
     private FavoriteRepository favoriteRepository;
 
@@ -62,10 +65,13 @@ public class FavoriteFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        rootView = view;
         progressFavorites = view.findViewById(R.id.progressFavorites);
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
         layoutEmptyFavorites = view.findViewById(R.id.layoutEmptyFavorites);
         textErrorFavorites = view.findViewById(R.id.textErrorFavorites);
+        textFavoriteCount = view.findViewById(R.id.textFavoriteCount);
+        textFavoriteTip = view.findViewById(R.id.textFavoriteTip);
     }
 
     private void setupRecyclerView() {
@@ -93,9 +99,7 @@ public class FavoriteFragment extends Fragment {
                 if (!isAdded()) return;
                 setLoading(false);
                 showErrorState();
-                Toast.makeText(requireContext(),
-                        getString(R.string.favorite_error) + ": " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                showMessage(getString(R.string.favorite_error) + ": " + e.getMessage());
             }
         });
     }
@@ -105,30 +109,41 @@ public class FavoriteFragment extends Fragment {
         recyclerFavorites.setVisibility(View.GONE);
         layoutEmptyFavorites.setVisibility(View.GONE);
         textErrorFavorites.setVisibility(View.GONE);
+        textFavoriteTip.setVisibility(View.GONE);
     }
 
     private void showRecipes(List<Recipe> recipes) {
         recipeAdapter.submitList(recipes);
+        textFavoriteCount.setText(recipes.size() + " món đã lưu");
         recyclerFavorites.setVisibility(View.VISIBLE);
         layoutEmptyFavorites.setVisibility(View.GONE);
         textErrorFavorites.setVisibility(View.GONE);
+        textFavoriteTip.setVisibility(View.VISIBLE);
     }
 
     private void showEmptyState() {
+        textFavoriteCount.setText("0 món đã lưu");
         recyclerFavorites.setVisibility(View.GONE);
         layoutEmptyFavorites.setVisibility(View.VISIBLE);
         textErrorFavorites.setVisibility(View.GONE);
+        textFavoriteTip.setVisibility(View.GONE);
     }
 
     private void showErrorState() {
+        textFavoriteCount.setText("Không tải được");
         recyclerFavorites.setVisibility(View.GONE);
         layoutEmptyFavorites.setVisibility(View.GONE);
         textErrorFavorites.setVisibility(View.VISIBLE);
+        textFavoriteTip.setVisibility(View.GONE);
     }
 
     private void openRecipeDetail(Recipe recipe) {
         Intent intent = new Intent(requireContext(), RecipeDetailActivity.class);
         intent.putExtra(RecipeDetailActivity.EXTRA_RECIPE_ID, recipe.getRecipeId());
         startActivity(intent);
+    }
+
+    private void showMessage(String message) {
+        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
     }
 }

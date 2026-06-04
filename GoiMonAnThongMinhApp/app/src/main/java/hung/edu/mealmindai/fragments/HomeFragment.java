@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,18 +28,21 @@ import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
 import hung.edu.mealmindai.repositories.NotificationRepository;
 import hung.edu.mealmindai.repositories.RecipeRepository;
+import hung.edu.mealmindai.utils.RecentRecipeStore;
 import hung.edu.mealmindai.utils.SeedDataHelper;
 
 public class HomeFragment extends Fragment {
 
     private ProgressBar progressRecipes;
+    private NestedScrollView homeScrollView;
     private TextView emptyRecipesText;
     private TextView errorRecipesText;
     private TextView buttonHomeScrollTop;
     private TextView buttonHomeScrollBottom;
+    private TextView textRecentRecipeTitle;
     private MaterialButton buttonOpenSmartChat;
-    private RecyclerView recipesRecyclerView;
-    private RecipeAdapter recipeAdapter;
+    private RecyclerView recipesRecyclerView, recentRecipesRecyclerView;
+    private RecipeAdapter recipeAdapter, recentRecipeAdapter;
     private RecipeRepository recipeRepository;
 
     @Nullable
@@ -58,13 +62,24 @@ public class HomeFragment extends Fragment {
         SeedDataHelper.seedRecipesIfNeeded(this::loadApprovedRecipes);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (recipeRepository != null) {
+            loadRecentRecipes();
+        }
+    }
+
     private void initViews(View view) {
         progressRecipes = view.findViewById(R.id.progressRecipes);
+        homeScrollView = view.findViewById(R.id.homeScrollView);
         emptyRecipesText = view.findViewById(R.id.textEmptyRecipes);
         errorRecipesText = view.findViewById(R.id.textErrorRecipes);
         buttonHomeScrollTop = view.findViewById(R.id.buttonHomeScrollTop);
         buttonHomeScrollBottom = view.findViewById(R.id.buttonHomeScrollBottom);
+        textRecentRecipeTitle = view.findViewById(R.id.textRecentRecipeTitle);
         buttonOpenSmartChat = view.findViewById(R.id.buttonOpenSmartChat);
+        recentRecipesRecyclerView = view.findViewById(R.id.recyclerRecentRecipes);
         recipesRecyclerView = view.findViewById(R.id.recyclerRecipes);
         recipeRepository = new RecipeRepository();
         buttonOpenSmartChat.setOnClickListener(v ->
@@ -73,23 +88,56 @@ public class HomeFragment extends Fragment {
 
     private void setupRecyclerView() {
         recipeAdapter = new RecipeAdapter(new ArrayList<>(), this::openRecipeDetail);
+        recentRecipeAdapter = new RecipeAdapter(new ArrayList<>(), this::openRecipeDetail);
+        recentRecipesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recentRecipesRecyclerView.setAdapter(recentRecipeAdapter);
         recipesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recipesRecyclerView.setAdapter(recipeAdapter);
-        buttonHomeScrollTop.setOnClickListener(v -> recipesRecyclerView.smoothScrollToPosition(0));
-        buttonHomeScrollBottom.setOnClickListener(v -> {
-            int lastPosition = recipeAdapter.getItemCount() - 1;
-            if (lastPosition >= 0) {
-                recipesRecyclerView.smoothScrollToPosition(lastPosition);
-            }
-        });
-        recipesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                updateScrollActionVisibility();
-            }
-        });
+        buttonHomeScrollTop.setOnClickListener(v -> homeScrollView.smoothScrollTo(0, 0));
+        buttonHomeScrollBottom.setOnClickListener(v ->
+                homeScrollView.post(() -> homeScrollView.smoothScrollTo(0, homeScrollView.getChildAt(0).getBottom())));
         updateScrollActionVisibility();
+    }
+
+    private void loadRecentRecipes() {
+        List<String> recentIds = RecentRecipeStore.getRecentRecipeIds(requireContext());
+        if (recentIds.isEmpty()) {
+            hideRecentRecipes();
+            return;
+        }
+
+        recipeRepository.loadRecipesByIds(recentIds, new RecipeRepository.RecipeCallback() {
+            @Override
+            public void onSuccess(List<Recipe> recipes) {
+                if (!isAdded()) {
+                    return;
+                }
+                if (recipes == null || recipes.isEmpty()) {
+                    hideRecentRecipes();
+                    return;
+                }
+                recentRecipeAdapter.submitList(recipes);
+                textRecentRecipeTitle.setVisibility(View.VISIBLE);
+                recentRecipesRecyclerView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                if (!isAdded()) {
+                    return;
+                }
+                hideRecentRecipes();
+            }
+        });
+    }
+
+    private void hideRecentRecipes() {
+        if (textRecentRecipeTitle != null) {
+            textRecentRecipeTitle.setVisibility(View.GONE);
+        }
+        if (recentRecipesRecyclerView != null) {
+            recentRecipesRecyclerView.setVisibility(View.GONE);
+        }
     }
 
     private void loadApprovedRecipes() {
@@ -177,9 +225,8 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        boolean canScrollUp = recipesRecyclerView.canScrollVertically(-1);
-        boolean canScrollDown = recipesRecyclerView.canScrollVertically(1);
-        buttonHomeScrollTop.setVisibility(canScrollUp ? View.VISIBLE : View.GONE);
-        buttonHomeScrollBottom.setVisibility(canScrollDown ? View.VISIBLE : View.GONE);
+        boolean hasManyRecipes = recipeAdapter != null && recipeAdapter.getItemCount() > 1;
+        buttonHomeScrollTop.setVisibility(hasManyRecipes ? View.VISIBLE : View.GONE);
+        buttonHomeScrollBottom.setVisibility(hasManyRecipes ? View.VISIBLE : View.GONE);
     }
 }
