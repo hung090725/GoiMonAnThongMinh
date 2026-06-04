@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,9 +48,11 @@ import hung.edu.mealmindai.adapters.RecipeAdapter;
 import hung.edu.mealmindai.models.Recipe;
 import hung.edu.mealmindai.repositories.RecipeRepository;
 import hung.edu.mealmindai.models.User;
+import hung.edu.mealmindai.repositories.PantryRepository;
 import hung.edu.mealmindai.repositories.SearchHistoryRepository;
 import hung.edu.mealmindai.repositories.UserRepository;
 import hung.edu.mealmindai.utils.RecommendationEngine;
+import hung.edu.mealmindai.utils.SearchKeywordStore;
 import hung.edu.mealmindai.utils.VoiceInputHelper;
 
 public class SearchFragment extends Fragment {
@@ -66,13 +72,17 @@ public class SearchFragment extends Fragment {
     // -------------------------------------------------------------------------
     private android.widget.EditText editIngredientsInput;
     private MaterialButton buttonSearch;
+    private MaterialButton buttonUsePantry;
     private ImageButton buttonVoice;
     private TextView textVoiceStatus;
+    private TextView textClearRecentSearch;
     private ProgressBar progressSearch;
     private RecyclerView recyclerResults;
     private TextView textResultsTitle;
     private android.widget.LinearLayout layoutStates;
+    private LinearLayout layoutRecentSearchContainer, layoutRecentSearchChips;
     private TextView textSearchState;
+    private View rootView;
 
     // -------------------------------------------------------------------------
     // Data & Logic
@@ -81,6 +91,7 @@ public class SearchFragment extends Fragment {
     private FirebaseFirestore db;
     private SearchHistoryRepository historyRepository;
     private UserRepository userRepository;
+    private PantryRepository pantryRepository;
     private VoiceInputHelper voiceInputHelper;
 
     // Thông tin hồ sơ người dùng để cá nhân hóa điểm gợi ý
@@ -98,9 +109,7 @@ public class SearchFragment extends Fragment {
                         if (isGranted) {
                             startSystemVoiceInput();
                         } else {
-                            Toast.makeText(requireContext(),
-                                    getString(R.string.voice_permission_denied),
-                                    Toast.LENGTH_LONG).show();
+                            showMessage(getString(R.string.voice_permission_denied));
                         }
                     }
             );
@@ -111,18 +120,14 @@ public class SearchFragment extends Fragment {
                     result -> {
                         setVoiceListeningState(false, getString(R.string.voice_hint));
                         if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) {
-                            Toast.makeText(requireContext(),
-                                    "Chưa nhận được giọng nói. Hãy thử lại.",
-                                    Toast.LENGTH_SHORT).show();
+                            showMessage("Chưa nhận được giọng nói. Hãy thử lại.");
                             return;
                         }
 
                         ArrayList<String> matches = result.getData()
                                 .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                         if (matches == null || matches.isEmpty()) {
-                            Toast.makeText(requireContext(),
-                                    "Không nhận diện được giọng nói.",
-                                    Toast.LENGTH_SHORT).show();
+                            showMessage("Không nhận diện được giọng nói.");
                             return;
                         }
 
@@ -144,17 +149,21 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        rootView = view;
 
         db = FirebaseFirestore.getInstance();
         historyRepository = new SearchHistoryRepository();
         userRepository = new UserRepository();
+        pantryRepository = new PantryRepository();
 
         initViews(view);
         setupRecyclerView();
         setupVoiceHelper();
+        setupRecentSearchChips();
         fetchUserProfile();
 
         buttonSearch.setOnClickListener(v -> performSearch());
+        buttonUsePantry.setOnClickListener(v -> usePantryIngredients());
         buttonVoice.setOnClickListener(v -> onVoiceButtonClicked());
     }
 
@@ -175,13 +184,49 @@ public class SearchFragment extends Fragment {
     private void initViews(View view) {
         editIngredientsInput = view.findViewById(R.id.editIngredientsInput);
         buttonSearch        = view.findViewById(R.id.buttonSearchRecipes);
+        buttonUsePantry     = view.findViewById(R.id.buttonUsePantry);
         buttonVoice         = view.findViewById(R.id.buttonVoiceSearch);
         textVoiceStatus     = view.findViewById(R.id.textVoiceStatus);
+        textClearRecentSearch = view.findViewById(R.id.textClearRecentSearch);
         progressSearch      = view.findViewById(R.id.progressSearch);
         recyclerResults     = view.findViewById(R.id.recyclerSearchResults);
         textResultsTitle    = view.findViewById(R.id.textResultsTitle);
         layoutStates        = view.findViewById(R.id.layoutSearchStates);
+        layoutRecentSearchContainer = view.findViewById(R.id.layoutRecentSearchContainer);
+        layoutRecentSearchChips = view.findViewById(R.id.layoutRecentSearchChips);
         textSearchState     = view.findViewById(R.id.textSearchState);
+    }
+
+    private void setupRecentSearchChips() {
+        editIngredientsInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && isSearchInputEmpty()) {
+                renderRecentSearchChips();
+            }
+        });
+
+        editIngredientsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (TextUtils.isEmpty(s)) {
+                    renderRecentSearchChips();
+                } else {
+                    hideRecentSearchChips();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        textClearRecentSearch.setOnClickListener(v -> {
+            SearchKeywordStore.clear(requireContext());
+            hideRecentSearchChips();
+        });
     }
 
     private void setupRecyclerView() {
@@ -192,6 +237,96 @@ public class SearchFragment extends Fragment {
         });
         recyclerResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerResults.setAdapter(recipeAdapter);
+    }
+
+    private void renderRecentSearchChips() {
+        if (!isAdded() || layoutRecentSearchContainer == null || layoutRecentSearchChips == null) {
+            return;
+        }
+
+        List<String> keywords = SearchKeywordStore.getKeywords(requireContext());
+        layoutRecentSearchChips.removeAllViews();
+        if (keywords.isEmpty()) {
+            hideRecentSearchChips();
+            return;
+        }
+
+        for (String keyword : keywords) {
+            TextView chip = new TextView(requireContext());
+            chip.setText(keyword);
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary_green));
+            chip.setTextSize(12);
+            chip.setTypeface(chip.getTypeface(), android.graphics.Typeface.BOLD);
+            chip.setBackgroundResource(R.drawable.bg_recipe_chip);
+            chip.setPadding(dp(12), dp(7), dp(12), dp(7));
+            chip.setClickable(true);
+            chip.setFocusable(true);
+            chip.setOnClickListener(v -> {
+                editIngredientsInput.setText(keyword);
+                editIngredientsInput.setSelection(keyword.length());
+                hideRecentSearchChips();
+                performSearch();
+            });
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMarginEnd(dp(8));
+            layoutRecentSearchChips.addView(chip, params);
+        }
+        layoutRecentSearchContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideRecentSearchChips() {
+        if (layoutRecentSearchContainer != null) {
+            layoutRecentSearchContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean isSearchInputEmpty() {
+        return editIngredientsInput == null || editIngredientsInput.getText() == null
+                || TextUtils.isEmpty(editIngredientsInput.getText().toString().trim());
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void usePantryIngredients() {
+        if (!isAdded()) return;
+        buttonUsePantry.setEnabled(false);
+        pantryRepository.loadCurrentUserPantry(new PantryRepository.PantryCallback() {
+            @Override
+            public void onSuccess(List<String> ingredients) {
+                if (!isAdded()) return;
+                buttonUsePantry.setEnabled(true);
+                if (ingredients == null || ingredients.isEmpty()) {
+                    showMessage("Tủ lạnh chưa có nguyên liệu. Hãy thêm trong Hồ sơ.");
+                    return;
+                }
+
+                String text = joinIngredients(ingredients);
+                editIngredientsInput.setText(text);
+                editIngredientsInput.setSelection(text.length());
+                textVoiceStatus.setText("Đã dùng nguyên liệu từ tủ lạnh: " + text);
+                hideRecentSearchChips();
+                performSearch();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (!isAdded()) return;
+                buttonUsePantry.setEnabled(true);
+                showMessage("Không thể tải tủ lạnh: " + e.getMessage());
+            }
+
+            @Override
+            public void onLoginRequired() {
+                if (!isAdded()) return;
+                buttonUsePantry.setEnabled(true);
+                showMessage("Vui lòng đăng nhập để dùng Tủ lạnh của tôi");
+            }
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -226,7 +361,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (!isAdded()) return;
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                showMessage(message);
             }
 
             @Override
@@ -244,7 +379,7 @@ public class SearchFragment extends Fragment {
     private void onVoiceButtonClicked() {
         Log.d("VoiceInputHelper", "Mic clicked");
         if (voiceInputHelper == null) {
-            Toast.makeText(requireContext(), getString(R.string.voice_not_supported), Toast.LENGTH_SHORT).show();
+            showMessage(getString(R.string.voice_not_supported));
             return;
         }
 
@@ -306,9 +441,7 @@ public class SearchFragment extends Fragment {
             startVoiceInput();
         } catch (Exception e) {
             setVoiceListeningState(false, getString(R.string.voice_hint));
-            Toast.makeText(requireContext(),
-                    "Không mở được nhận diện giọng nói: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+            showMessage("Không mở được nhận diện giọng nói: " + e.getMessage());
         }
     }
 
@@ -321,7 +454,7 @@ public class SearchFragment extends Fragment {
         }
 
         if (normalizedText.trim().isEmpty()) {
-            Toast.makeText(requireContext(), "Không nhận diện được nguyên liệu.", Toast.LENGTH_SHORT).show();
+            showMessage("Không nhận diện được nguyên liệu.");
             return;
         }
 
@@ -401,9 +534,12 @@ public class SearchFragment extends Fragment {
                 ? editIngredientsInput.getText().toString().trim() : "";
 
         if (TextUtils.isEmpty(input)) {
-            Toast.makeText(requireContext(), "Vui lòng nhập nguyên liệu", Toast.LENGTH_SHORT).show();
+            showMessage("Vui lòng nhập nguyên liệu");
             return;
         }
+
+        SearchKeywordStore.saveKeyword(requireContext(), input);
+        hideRecentSearchChips();
 
         List<String> userIngredients = parseIngredients(input);
 
@@ -430,17 +566,44 @@ public class SearchFragment extends Fragment {
                                     recipe, userIngredients);
 
                             if (ingredientScore > 0) {
+                                ArrayList<String> matchedIngredients =
+                                        RecommendationEngine.findMatchedIngredients(recipe, userIngredients);
+                                ArrayList<String> missingIngredients =
+                                        RecommendationEngine.findMissingIngredients(recipe, userIngredients);
+                                int matchPercent =
+                                        RecommendationEngine.calculateMatchPercent(recipe, matchedIngredients);
                                 double healthScore = RecommendationEngine.calculateHealthScore(
                                         recipe, healthGoal);
                                 double budgetScore = RecommendationEngine.calculateBudgetScore(
                                         recipe, userBudget);
                                 double timeScore   = RecommendationEngine.calculateTimeScore(
                                         recipe, availableTime);
+                                double favoriteScore = 70.0;
                                 double totalScore  = (ingredientScore * 0.40)
                                         + (healthScore  * 0.20)
                                         + (budgetScore  * 0.15)
                                         + (timeScore    * 0.15)
-                                        + (70.0         * 0.10);
+                                        + (favoriteScore * 0.10);
+
+                                recipe.setMatchedIngredients(matchedIngredients);
+                                recipe.setMissingIngredients(missingIngredients);
+                                recipe.setMatchPercent(matchPercent);
+                                recipe.setRecommendationScore(totalScore);
+                                recipe.setIngredientScore(ingredientScore);
+                                recipe.setHealthScore(healthScore);
+                                recipe.setBudgetScore(budgetScore);
+                                recipe.setTimeScore(timeScore);
+                                recipe.setFavoriteScore(favoriteScore);
+                                recipe.setConfidenceLevel(RecommendationEngine.getConfidenceLevel(totalScore));
+                                recipe.setCookabilityLevel(RecommendationEngine.getCookabilityLevel(matchPercent));
+                                recipe.setRecommendationReason(
+                                        RecommendationEngine.buildRecommendationReason(
+                                                recipe,
+                                                matchedIngredients,
+                                                missingIngredients,
+                                                healthGoal,
+                                                (int) Math.round(userBudget),
+                                                availableTime));
 
                                 if (!uniqueRecipes.containsKey(normalizedName)
                                         || totalScore > uniqueRecipes.get(normalizedName).score) {
@@ -511,6 +674,13 @@ public class SearchFragment extends Fragment {
         layoutStates.setVisibility(View.VISIBLE);
         recyclerResults.setVisibility(View.GONE);
         textResultsTitle.setVisibility(View.GONE);
+    }
+
+    private void showMessage(String message) {
+        if (!isAdded() || rootView == null) {
+            return;
+        }
+        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private String normalizeVoiceIngredients(String rawText) {

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,9 +31,13 @@ import java.util.Locale;
 
 import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
+import hung.edu.mealmindai.models.User;
 import hung.edu.mealmindai.repositories.FavoriteRepository;
 import hung.edu.mealmindai.repositories.MealPlanRepository;
+import hung.edu.mealmindai.repositories.RatingRepository;
 import hung.edu.mealmindai.repositories.RecipeRepository;
+import hung.edu.mealmindai.repositories.UserRepository;
+import hung.edu.mealmindai.utils.RecentRecipeStore;
 
 public class RecipeDetailActivity extends AppCompatActivity {
 
@@ -44,18 +50,24 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private LinearLayout sectionIngredients, sectionSteps;
     private TextView textName, textDescription, textCalories, textTime, textCost;
     private TextView textDifficulty, textAuthor, textLikes, textIngredients, textSteps, textDetailError;
+    private TextView textNutritionNote, textAverageRating;
     private TextView buttonScrollIngredients, buttonScrollSteps, buttonScrollTop;
-    private MaterialButton buttonAddTodayPlan, buttonOpenShoppingList, buttonOpenCookMode;
+    private MaterialButton buttonAddTodayPlan, buttonOpenShoppingList, buttonOpenCookMode, buttonShareRecipe;
+    private RatingBar ratingRecipe;
     private ProgressBar progressBar;
     private FirebaseFirestore db;
 
     // Favorite state
     private FavoriteRepository favoriteRepository;
     private MealPlanRepository mealPlanRepository;
+    private RatingRepository ratingRepository;
+    private UserRepository userRepository;
     private boolean isFavorited = false;
+    private boolean isApplyingRating = false;
     private String currentFavoriteId = null;
     private String currentRecipeId = null;
     private Recipe currentRecipe = null;
+    private String currentHealthGoal = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +77,22 @@ public class RecipeDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         favoriteRepository = new FavoriteRepository();
         mealPlanRepository = new MealPlanRepository();
+        ratingRepository = new RatingRepository();
+        userRepository = new UserRepository();
         initViews();
         setupToolbar();
         setupQuickScrollButtons();
         setupFavoriteButton();
         setupMealPlanButton();
+        setupRatingBar();
         setupAdvancedActionButtons();
+        loadHealthGoal();
 
         currentRecipeId = getIntent().getStringExtra(EXTRA_RECIPE_ID);
         if (!TextUtils.isEmpty(currentRecipeId)) {
             loadRecipeDetails(currentRecipeId);
             checkFavoriteStatus(currentRecipeId);
+            loadRatingInfo(currentRecipeId);
         } else {
             Toast.makeText(this, R.string.error_load_recipe, Toast.LENGTH_SHORT).show();
             finish();
@@ -100,12 +117,16 @@ public class RecipeDetailActivity extends AppCompatActivity {
         textIngredients = findViewById(R.id.textIngredients);
         textSteps = findViewById(R.id.textSteps);
         textDetailError = findViewById(R.id.textDetailError);
+        textNutritionNote = findViewById(R.id.textNutritionNote);
+        textAverageRating = findViewById(R.id.textAverageRating);
+        ratingRecipe = findViewById(R.id.ratingRecipe);
         buttonScrollIngredients = findViewById(R.id.buttonScrollIngredients);
         buttonScrollSteps = findViewById(R.id.buttonScrollSteps);
         buttonScrollTop = findViewById(R.id.buttonScrollTop);
         buttonAddTodayPlan = findViewById(R.id.buttonAddTodayPlan);
         buttonOpenShoppingList = findViewById(R.id.buttonOpenShoppingList);
         buttonOpenCookMode = findViewById(R.id.buttonOpenCookMode);
+        buttonShareRecipe = findViewById(R.id.buttonShareRecipe);
         progressBar = findViewById(R.id.progressDetail);
     }
 
@@ -124,6 +145,28 @@ public class RecipeDetailActivity extends AppCompatActivity {
         buttonScrollTop.setOnClickListener(v -> detailScrollView.smoothScrollTo(0, 0));
     }
 
+    private void loadHealthGoal() {
+        userRepository.getCurrentUserProfile(new UserRepository.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                currentHealthGoal = user != null && user.getHealthGoal() != null
+                        ? user.getHealthGoal() : "";
+                updateNutritionNote();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                currentHealthGoal = "";
+                updateNutritionNote();
+            }
+        });
+    }
+
+    private void showMessage(String message) {
+        View root = detailScrollView != null ? detailScrollView : imageRecipe;
+        Snackbar.make(root, message, Snackbar.LENGTH_SHORT).show();
+    }
+
     // -------------------------------------------------------------------------
     // Favorite Logic
     // -------------------------------------------------------------------------
@@ -132,7 +175,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         buttonFavorite.setOnClickListener(v -> {
             // Kiểm tra đăng nhập
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                Toast.makeText(this, R.string.favorite_login_required, Toast.LENGTH_SHORT).show();
+                showMessage(getString(R.string.favorite_login_required));
                 return;
             }
 
@@ -152,14 +195,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         currentFavoriteId = null;
                         updateFavoriteIcon();
                         buttonFavorite.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this, R.string.favorite_removed, Toast.LENGTH_SHORT).show();
+                        showMessage(getString(R.string.favorite_removed));
                     }
 
                     @Override
                     public void onError(Exception e) {
                         buttonFavorite.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this,
-                                "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        showMessage("Lỗi: " + e.getMessage());
                     }
                 };
 
@@ -178,14 +220,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         checkFavoriteStatus(currentRecipeId);
                         updateFavoriteIcon();
                         buttonFavorite.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this, R.string.favorite_added, Toast.LENGTH_SHORT).show();
+                        showMessage(getString(R.string.favorite_added));
                     }
 
                     @Override
                     public void onError(Exception e) {
                         buttonFavorite.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this,
-                                "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        showMessage("Lỗi: " + e.getMessage());
                     }
                 });
             }
@@ -195,11 +236,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private void setupMealPlanButton() {
         buttonAddTodayPlan.setOnClickListener(v -> {
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                Toast.makeText(this, "Vui lòng đăng nhập để lập kế hoạch bữa ăn", Toast.LENGTH_SHORT).show();
+                showMessage("Vui lòng đăng nhập để lập kế hoạch bữa ăn");
                 return;
             }
             if (currentRecipe == null || TextUtils.isEmpty(currentRecipeId)) {
-                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                showMessage("Chưa có dữ liệu món ăn");
                 return;
             }
             showMealTypeDialog();
@@ -207,9 +248,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
     }
 
     private void setupAdvancedActionButtons() {
+        buttonShareRecipe.setOnClickListener(v -> shareRecipe());
+
         buttonOpenShoppingList.setOnClickListener(v -> {
             if (TextUtils.isEmpty(currentRecipeId)) {
-                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                showMessage("Chưa có dữ liệu món ăn");
                 return;
             }
             Intent intent = new Intent(this, ShoppingListActivity.class);
@@ -219,13 +262,113 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         buttonOpenCookMode.setOnClickListener(v -> {
             if (TextUtils.isEmpty(currentRecipeId)) {
-                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                showMessage("Chưa có dữ liệu món ăn");
                 return;
             }
             Intent intent = new Intent(this, CookModeActivity.class);
             intent.putExtra(CookModeActivity.EXTRA_RECIPE_ID, currentRecipeId);
             startActivity(intent);
         });
+    }
+
+    private void setupRatingBar() {
+        ratingRecipe.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if (!fromUser || isApplyingRating || TextUtils.isEmpty(currentRecipeId)) {
+                return;
+            }
+
+            ratingRepository.saveRating(currentRecipeId, rating, new RatingRepository.ActionCallback() {
+                @Override
+                public void onSuccess(double averageRating) {
+                    updateAverageRatingText(averageRating);
+                    showMessage("Đã lưu đánh giá " + Math.round(rating) + " sao");
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    showMessage("Lỗi lưu đánh giá: " + e.getMessage());
+                }
+
+                @Override
+                public void onLoginRequired() {
+                    showMessage("Vui lòng đăng nhập để đánh giá món ăn");
+                }
+            });
+        });
+    }
+
+    private void loadRatingInfo(String recipeId) {
+        ratingRepository.loadRatingInfo(recipeId, new RatingRepository.RatingCallback() {
+            @Override
+            public void onSuccess(float userRating, double averageRating) {
+                isApplyingRating = true;
+                ratingRecipe.setRating(userRating);
+                isApplyingRating = false;
+                updateAverageRatingText(averageRating);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                updateAverageRatingText(0);
+            }
+
+            @Override
+            public void onLoginRequired() {
+                textAverageRating.setText("Đăng nhập để đánh giá món ăn");
+            }
+        });
+    }
+
+    private void updateAverageRatingText(double averageRating) {
+        if (averageRating <= 0) {
+            textAverageRating.setText("Chưa có đánh giá");
+            return;
+        }
+        textAverageRating.setText(String.format(Locale.getDefault(), "⭐ %.1f điểm đánh giá trung bình", averageRating));
+    }
+
+    private void shareRecipe() {
+        if (currentRecipe == null) {
+            showMessage("Chưa có dữ liệu công thức để chia sẻ");
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Món ăn: ")
+                .append(currentRecipe.getName() != null ? currentRecipe.getName() : "Công thức MealMind AI")
+                .append("\n\nNguyên liệu: ")
+                .append(formatIngredientsForShare(currentRecipe.getIngredients()))
+                .append("\nThời gian: ")
+                .append(currentRecipe.getCookingTime() != null ? currentRecipe.getCookingTime() : 0)
+                .append(" phút")
+                .append("\nChi phí: ")
+                .append(currentRecipe.getEstimatedCost() != null
+                        ? NumberFormat.getInstance(new Locale("vi", "VN")).format(currentRecipe.getEstimatedCost()) + "đ"
+                        : "Đang cập nhật")
+                .append("\nCalo: ")
+                .append(currentRecipe.getCalories() != null ? currentRecipe.getCalories() + " kcal" : "Đang cập nhật")
+                .append("\n\nMealMind AI - Gợi ý món ăn từ nguyên liệu đang có.");
+
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Công thức " + currentRecipe.getName());
+        sendIntent.putExtra(Intent.EXTRA_TITLE, "Chia sẻ công thức MealMind AI");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, builder.toString());
+        startActivity(Intent.createChooser(sendIntent, "Chia sẻ công thức"));
+    }
+
+    private String formatIngredientsForShare(List<String> ingredients) {
+        if (ingredients == null || ingredients.isEmpty()) {
+            return "Đang cập nhật";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < ingredients.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(ingredients.get(i));
+        }
+        return builder.toString();
     }
 
     private void showMealTypeDialog() {
@@ -253,25 +396,19 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         buttonAddTodayPlan.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this,
-                                "Đã thêm vào kế hoạch " + mealLabel.toLowerCase(Locale.ROOT),
-                                Toast.LENGTH_SHORT).show();
+                        showMessage("Đã thêm vào kế hoạch " + mealLabel.toLowerCase(Locale.ROOT));
                     }
 
                     @Override
                     public void onError(Exception e) {
                         buttonAddTodayPlan.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this,
-                                "Lỗi kế hoạch: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        showMessage("Lỗi kế hoạch: " + e.getMessage());
                     }
 
                     @Override
                     public void onLoginRequired() {
                         buttonAddTodayPlan.setEnabled(true);
-                        Toast.makeText(RecipeDetailActivity.this,
-                                "Vui lòng đăng nhập để lập kế hoạch bữa ăn",
-                                Toast.LENGTH_SHORT).show();
+                        showMessage("Vui lòng đăng nhập để lập kế hoạch bữa ăn");
                     }
                 });
     }
@@ -336,9 +473,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     setLoading(false);
                     showErrorState(getString(R.string.error_load_recipe));
-                    Toast.makeText(this,
-                            getString(R.string.error_load_recipe) + ": " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                    showMessage(getString(R.string.error_load_recipe) + ": " + e.getMessage());
                 });
     }
 
@@ -359,6 +494,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private void displayRecipe(Recipe recipe) {
         if (recipe == null) return;
         currentRecipe = recipe;
+        RecentRecipeStore.saveViewedRecipe(this, currentRecipeId);
         appBar.setVisibility(View.VISIBLE);
         detailScrollView.setVisibility(View.VISIBLE);
         textDetailError.setVisibility(View.GONE);
@@ -415,6 +551,32 @@ public class RecipeDetailActivity extends AppCompatActivity {
         textSteps.setText(stepsBuilder.toString().trim());
 
         loadRecipeImage(recipe);
+        updateNutritionNote();
+    }
+
+    private void updateNutritionNote() {
+        if (textNutritionNote == null || currentRecipe == null) {
+            return;
+        }
+
+        int calories = currentRecipe.getCalories() != null ? currentRecipe.getCalories() : 0;
+        String note;
+        if ("Giảm cân".equals(currentHealthGoal)) {
+            note = calories > 0 && calories <= 450
+                    ? "Mức phù hợp sức khỏe: phù hợp mục tiêu giảm cân ở mức cơ bản."
+                    : "Mức phù hợp sức khỏe: calo hơi cao, nên cân nhắc khẩu phần khi giảm cân.";
+        } else if ("Tăng cân".equals(currentHealthGoal)) {
+            note = calories >= 450
+                    ? "Mức phù hợp sức khỏe: phù hợp mục tiêu tăng cân ở mức cơ bản."
+                    : "Mức phù hợp sức khỏe: món khá nhẹ, có thể bổ sung thêm khẩu phần.";
+        } else if ("Ăn tiết kiệm".equals(currentHealthGoal)) {
+            note = "Mức phù hợp sức khỏe: ưu tiên chi phí và vẫn hiển thị calo cơ bản.";
+        } else if ("Ăn nhanh".equals(currentHealthGoal)) {
+            note = "Mức phù hợp sức khỏe: phù hợp khi cần chọn món nhanh, dễ chuẩn bị.";
+        } else {
+            note = "Mức phù hợp sức khỏe: phù hợp ở mức cơ bản, chưa phân tích macro chuyên sâu.";
+        }
+        textNutritionNote.setText(note);
     }
 
     private void loadRecipeImage(Recipe recipe) {

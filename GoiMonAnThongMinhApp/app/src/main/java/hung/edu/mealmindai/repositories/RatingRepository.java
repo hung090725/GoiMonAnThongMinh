@@ -28,6 +28,11 @@ public class RatingRepository {
         void onLoginRequired();
     }
 
+    public interface AverageRatingCallback {
+        void onSuccess(double averageRating, int ratingCount);
+        void onError(Exception e);
+    }
+
     public void loadRatingInfo(String recipeId, RatingCallback callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
@@ -89,6 +94,30 @@ public class RatingRepository {
                         callback.onError(e);
                     }
                 }))
+                .addOnFailureListener(callback::onError);
+    }
+
+    public void loadAverageRatingInfo(String recipeId, AverageRatingCallback callback) {
+        if (recipeId == null || recipeId.trim().isEmpty()) {
+            callback.onSuccess(0, 0);
+            return;
+        }
+
+        db.collection(COLLECTION_RATINGS)
+                .whereEqualTo("recipeId", recipeId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    double total = 0;
+                    int count = 0;
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        float rating = toFloat(document.get("rating"));
+                        if (rating > 0) {
+                            total += rating;
+                            count++;
+                        }
+                    }
+                    callback.onSuccess(count == 0 ? 0 : total / count, count);
+                })
                 .addOnFailureListener(callback::onError);
     }
 

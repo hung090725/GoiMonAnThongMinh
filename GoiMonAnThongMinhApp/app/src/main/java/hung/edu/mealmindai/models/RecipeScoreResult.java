@@ -14,10 +14,15 @@ public class RecipeScoreResult {
     private double timeScore;
     private double favoriteScore;
     private ArrayList<String> matchedIngredients;
+    private ArrayList<String> missingIngredients;
+    private int matchPercent;
     private String reason;
+    private String confidenceLevel;
+    private String cookabilityLevel;
 
     public RecipeScoreResult() {
         matchedIngredients = new ArrayList<>();
+        missingIngredients = new ArrayList<>();
     }
 
     public RecipeScoreResult(Recipe recipe, double totalScore, double ingredientScore,
@@ -32,6 +37,7 @@ public class RecipeScoreResult {
         this.timeScore = timeScore;
         this.favoriteScore = favoriteScore;
         this.matchedIngredients = matchedIngredients;
+        this.missingIngredients = new ArrayList<>();
         this.reason = reason;
     }
 
@@ -99,11 +105,43 @@ public class RecipeScoreResult {
         this.matchedIngredients = matchedIngredients;
     }
 
+    public ArrayList<String> getMissingIngredients() {
+        return missingIngredients;
+    }
+
+    public void setMissingIngredients(ArrayList<String> missingIngredients) {
+        this.missingIngredients = missingIngredients;
+    }
+
+    public int getMatchPercent() {
+        return matchPercent;
+    }
+
+    public void setMatchPercent(int matchPercent) {
+        this.matchPercent = matchPercent;
+    }
+
     public String getReason() {
         return reason;
     }
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getConfidenceLevel() {
+        return confidenceLevel;
+    }
+
+    public void setConfidenceLevel(String confidenceLevel) {
+        this.confidenceLevel = confidenceLevel;
+    }
+
+    public String getCookabilityLevel() {
+        return cookabilityLevel;
+    }
+
+    public void setCookabilityLevel(String cookabilityLevel) {
+        this.cookabilityLevel = cookabilityLevel;
     }
 }

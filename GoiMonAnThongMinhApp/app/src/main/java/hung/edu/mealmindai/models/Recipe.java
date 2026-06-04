@@ -40,6 +40,22 @@ public class Recipe {
     private Timestamp reviewedAt;
     private String reviewedBy;
     private String rejectReason;
+    // Runtime-only suggestion details. These fields are calculated in the app
+    // and are not required to exist in Firestore documents.
+    private List<String> matchedIngredients;
+    private List<String> missingIngredients;
+    private Double recommendationScore;
+    private Integer matchPercent;
+    private String recommendationReason;
+    private Double ingredientScore;
+    private Double healthScore;
+    private Double budgetScore;
+    private Double timeScore;
+    private Double favoriteScore;
+    private String confidenceLevel;
+    private String cookabilityLevel;
+    private Double averageRating;
+    private Integer ratingCount;
 
     /**
      * Required empty constructor for Firebase.
@@ -304,5 +320,117 @@ public class Recipe {
 
     public void setRejectReason(String rejectReason) {
         this.rejectReason = rejectReason;
+    }
+
+    public List<String> getMatchedIngredients() {
+        return matchedIngredients;
+    }
+
+    public void setMatchedIngredients(List<String> matchedIngredients) {
+        this.matchedIngredients = matchedIngredients;
+    }
+
+    public List<String> getMissingIngredients() {
+        return missingIngredients;
+    }
+
+    public void setMissingIngredients(List<String> missingIngredients) {
+        this.missingIngredients = missingIngredients;
+    }
+
+    public Double getRecommendationScore() {
+        return recommendationScore;
+    }
+
+    public void setRecommendationScore(Double recommendationScore) {
+        this.recommendationScore = recommendationScore;
+    }
+
+    public Integer getMatchPercent() {
+        return matchPercent;
+    }
+
+    public void setMatchPercent(Integer matchPercent) {
+        this.matchPercent = matchPercent;
+    }
+
+    public String getRecommendationReason() {
+        return recommendationReason;
+    }
+
+    public void setRecommendationReason(String recommendationReason) {
+        this.recommendationReason = recommendationReason;
+    }
+
+    public Double getIngredientScore() {
+        return ingredientScore;
+    }
+
+    public void setIngredientScore(Double ingredientScore) {
+        this.ingredientScore = ingredientScore;
+    }
+
+    public Double getHealthScore() {
+        return healthScore;
+    }
+
+    public void setHealthScore(Double healthScore) {
+        this.healthScore = healthScore;
+    }
+
+    public Double getBudgetScore() {
+        return budgetScore;
+    }
+
+    public void setBudgetScore(Double budgetScore) {
+        this.budgetScore = budgetScore;
+    }
+
+    public Double getTimeScore() {
+        return timeScore;
+    }
+
+    public void setTimeScore(Double timeScore) {
+        this.timeScore = timeScore;
+    }
+
+    public Double getFavoriteScore() {
+        return favoriteScore;
+    }
+
+    public void setFavoriteScore(Double favoriteScore) {
+        this.favoriteScore = favoriteScore;
+    }
+
+    public String getConfidenceLevel() {
+        return confidenceLevel;
+    }
+
+    public void setConfidenceLevel(String confidenceLevel) {
+        this.confidenceLevel = confidenceLevel;
+    }
+
+    public String getCookabilityLevel() {
+        return cookabilityLevel;
+    }
+
+    public void setCookabilityLevel(String cookabilityLevel) {
+        this.cookabilityLevel = cookabilityLevel;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public Integer getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(Integer ratingCount) {
+        this.ratingCount = ratingCount;
     }
 }

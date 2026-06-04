@@ -59,8 +59,30 @@
                     android:text="@string/favorite_header_subtitle"
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/textFavoriteCount"
+                    style="@style/TextAppearance.MealMind.RecipeChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_recipe_chip"
+                    android:text="0 món đã lưu" />
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textFavoriteTip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_stat_card"
+            android:lineSpacingExtra="2dp"
+            android:padding="14dp"
+            android:text="Mẹo: mở chi tiết món để xem nguyên liệu, thêm vào kế hoạch hôm nay hoặc tạo danh sách mua."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- Loading -->

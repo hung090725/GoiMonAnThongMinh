@@ -1,10 +1,17 @@
 package hung.edu.mealmindai.utils;
 
+import java.text.DecimalFormat;
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import hung.edu.mealmindai.models.Recipe;
@@ -16,6 +23,9 @@ import hung.edu.mealmindai.models.RecipeScoreResult;
  */
 public class RecommendationEngine {
     private static final Pattern DIACRITICS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+    private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###");
+    private static final double MAIN_INGREDIENT_BONUS = 10.0;
+    private static final Map<String, List<String>> SYNONYM_MAP = buildSynonymMap();
 
     /**
      * Tính tổng điểm cho một món ăn.
@@ -45,29 +55,8 @@ public class RecommendationEngine {
     }
 
     public static double calculateIngredientScore(Recipe recipe, List<String> userIngredients) {
-        if (userIngredients == null || userIngredients.isEmpty()) return 0;
-        
-        List<String> searchableTexts = buildSearchableTexts(recipe);
-        if (searchableTexts.isEmpty()) return 0;
-
-        int matchedCount = 0;
-        for (String userIng : userIngredients) {
-            String ui = normalizeVietnamese(userIng);
-            if (ui.isEmpty()) {
-                continue;
-            }
-
-            for (String recipeText : searchableTexts) {
-                String normalizedRecipeText = normalizeVietnamese(recipeText);
-                if (isSearchMatch(ui, normalizedRecipeText)) {
-                    matchedCount++;
-                    break; 
-                }
-            }
-        }
-
-        // Score theo số từ khóa người dùng nhập, để nhập ít nguyên liệu vẫn có kết quả.
-        return ((double) matchedCount / userIngredients.size()) * 100.0;
+        IngredientMatchSummary summary = calculateIngredientMatchSummary(recipe, userIngredients);
+        return summary.ingredientScore;
     }
 
     public static List<RecipeScoreResult> calculateDetailedScores(
@@ -84,7 +73,10 @@ public class RecommendationEngine {
 
         for (Recipe recipe : recipes) {
             ArrayList<String> matchedIngredients = findMatchedIngredients(recipe, userIngredients);
-            double ingredientScore = calculateDetailedIngredientScore(recipe, matchedIngredients);
+            ArrayList<String> missingIngredients = findMissingIngredients(recipe, userIngredients);
+            IngredientMatchSummary matchSummary = calculateIngredientMatchSummary(recipe, userIngredients);
+            int matchPercent = (int) Math.round(matchSummary.recipeCoverage * 100.0);
+            double ingredientScore = matchSummary.ingredientScore;
             double healthScore = calculateHealthScore(recipe, healthGoal);
             double budgetScore = calculateBudgetScore(recipe, mealBudget);
             double timeScore = calculateTimeScore(recipe, availableTime);
@@ -105,7 +97,24 @@ public class RecommendationEngine {
                 result.setFavoriteScore(favoriteScore);
                 result.setTotalScore(totalScore);
                 result.setMatchedIngredients(matchedIngredients);
-                result.setReason(buildReason(recipe, matchedIngredients, healthGoal, mealBudget, availableTime));
+                result.setMissingIngredients(missingIngredients);
+                result.setMatchPercent(matchPercent);
+                result.setConfidenceLevel(getConfidenceLevel(totalScore));
+                result.setCookabilityLevel(getCookabilityLevel(matchPercent));
+                result.setReason(buildRecommendationReason(
+                        recipe, matchedIngredients, missingIngredients, healthGoal, mealBudget, availableTime));
+                recipe.setMatchedIngredients(matchedIngredients);
+                recipe.setMissingIngredients(missingIngredients);
+                recipe.setMatchPercent(matchPercent);
+                recipe.setRecommendationScore(totalScore);
+                recipe.setRecommendationReason(result.getReason());
+                recipe.setIngredientScore(ingredientScore);
+                recipe.setHealthScore(healthScore);
+                recipe.setBudgetScore(budgetScore);
+                recipe.setTimeScore(timeScore);
+                recipe.setFavoriteScore(favoriteScore);
+                recipe.setConfidenceLevel(result.getConfidenceLevel());
+                recipe.setCookabilityLevel(result.getCookabilityLevel());
                 results.add(result);
             }
         }
@@ -126,24 +135,27 @@ public class RecommendationEngine {
         return Math.min(100.0, ((double) matchedIngredients.size() / totalIngredients) * 100.0);
     }
 
-    private static ArrayList<String> findMatchedIngredients(Recipe recipe, List<String> userIngredients) {
+    public static int calculateMatchPercent(Recipe recipe, List<String> matchedIngredients) {
+        return (int) Math.round(calculateDetailedIngredientScore(recipe, matchedIngredients));
+    }
+
+    public static ArrayList<String> findMatchedIngredients(Recipe recipe, List<String> userIngredients) {
         ArrayList<String> matches = new ArrayList<>();
         if (recipe == null || userIngredients == null || userIngredients.isEmpty()) {
             return matches;
         }
 
-        List<String> searchableTexts = buildSearchableTexts(recipe);
+        List<String> recipeIngredients = safeIngredients(recipe);
         for (String userIngredient : userIngredients) {
-            String normalizedUserIngredient = normalizeVietnamese(userIngredient);
+            String normalizedUserIngredient = canonicalIngredient(userIngredient);
             if (normalizedUserIngredient.isEmpty()) {
                 continue;
             }
 
-            for (String recipeText : searchableTexts) {
-                String normalizedRecipeText = normalizeVietnamese(recipeText);
-                if (isSearchMatch(normalizedUserIngredient, normalizedRecipeText)) {
-                    if (!matches.contains(userIngredient)) {
-                        matches.add(userIngredient);
+            for (String recipeIngredient : recipeIngredients) {
+                if (isIngredientMatch(userIngredient, recipeIngredient)) {
+                    if (!containsNormalized(matches, recipeIngredient)) {
+                        matches.add(recipeIngredient);
                     }
                     break;
                 }
@@ -152,27 +164,104 @@ public class RecommendationEngine {
         return matches;
     }
 
-    private static String buildReason(Recipe recipe, ArrayList<String> matchedIngredients,
-                                      String healthGoal, int mealBudget, int availableTime) {
+    public static ArrayList<String> findMissingIngredients(Recipe recipe, List<String> userIngredients) {
+        ArrayList<String> missing = new ArrayList<>();
+        if (recipe == null || recipe.getIngredients() == null || recipe.getIngredients().isEmpty()) {
+            return missing;
+        }
+
+        for (String recipeIngredient : recipe.getIngredients()) {
+            String normalizedRecipeIngredient = canonicalIngredient(recipeIngredient);
+            if (normalizedRecipeIngredient.isEmpty()) {
+                continue;
+            }
+
+            boolean matched = false;
+            if (userIngredients != null) {
+                for (String userIngredient : userIngredients) {
+                    if (isIngredientMatch(userIngredient, recipeIngredient)) {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!matched && !containsNormalized(missing, recipeIngredient)) {
+                missing.add(recipeIngredient);
+            }
+        }
+        return missing;
+    }
+
+    public static String getConfidenceLevel(double totalScore) {
+        if (totalScore >= 80) {
+            return "Rất phù hợp ✅";
+        } else if (totalScore >= 60) {
+            return "Phù hợp 👍";
+        } else if (totalScore >= 40) {
+            return "Có thể thử 🤔";
+        }
+        return "Ít phù hợp ⚠️";
+    }
+
+    public static String getCookabilityLevel(int matchPercent) {
+        if (matchPercent >= 80) {
+            return "🟢 Nấu ngay được";
+        } else if (matchPercent >= 40) {
+            return "🟡 Cần mua thêm ít";
+        }
+        return "🔴 Cần mua thêm nhiều";
+    }
+
+    public static String buildRecommendationReason(Recipe recipe,
+                                                   ArrayList<String> matchedIngredients,
+                                                   ArrayList<String> missingIngredients,
+                                                   String healthGoal,
+                                                   int mealBudget,
+                                                   int availableTime) {
         StringBuilder reason = new StringBuilder();
+        int totalIngredients = recipe != null && recipe.getIngredients() != null
+                ? recipe.getIngredients().size() : 0;
+
         if (matchedIngredients != null && !matchedIngredients.isEmpty()) {
-            reason.append("Trùng nguyên liệu: ").append(joinStrings(matchedIngredients)).append(". ");
+            reason.append("Bạn có ");
+            if (totalIngredients > 0) {
+                reason.append(matchedIngredients.size()).append("/").append(totalIngredients).append(" nguyên liệu");
+            } else {
+                reason.append(matchedIngredients.size()).append(" nguyên liệu phù hợp");
+            }
+            reason.append(": ").append(joinStrings(matchedIngredients)).append(". ");
         } else {
             reason.append("Món có điểm tổng thể phù hợp với hồ sơ của bạn. ");
         }
 
-        double cost = recipe.getEstimatedCost() != null ? recipe.getEstimatedCost() : 0;
-        int time = recipe.getCookingTime() != null ? recipe.getCookingTime() : 0;
+        double cost = recipe != null && recipe.getEstimatedCost() != null ? recipe.getEstimatedCost() : 0;
+        int time = recipe != null && recipe.getCookingTime() != null ? recipe.getCookingTime() : 0;
         if (mealBudget > 0) {
-            reason.append(cost <= mealBudget ? "Chi phí phù hợp ngân sách. " : "Chi phí hơi vượt ngân sách. ");
+            reason.append("Chi phí khoảng ").append(formatMoney(cost)).append(cost <= mealBudget
+                    ? ", phù hợp ngân sách. " : ", hơi vượt ngân sách. ");
         }
         if (availableTime > 0) {
-            reason.append(time <= availableTime ? "Thời gian nấu phù hợp. " : "Thời gian nấu hơi lâu hơn mong muốn. ");
+            reason.append("Thời gian ").append(time).append(" phút").append(time <= availableTime
+                    ? ", phù hợp thời gian. " : ", hơi lâu hơn mong muốn. ");
         }
         if (healthGoal != null && !healthGoal.trim().isEmpty()) {
             reason.append("Có xét theo mục tiêu ").append(healthGoal).append(".");
         }
+        if (missingIngredients != null && !missingIngredients.isEmpty()) {
+            reason.append(" Cần bổ sung: ").append(joinLimited(missingIngredients, 3)).append(".");
+        }
         return reason.toString().trim();
+    }
+
+    private static boolean containsNormalized(List<String> values, String candidate) {
+        String normalizedCandidate = normalizeVietnamese(candidate);
+        for (String value : values) {
+            if (normalizeVietnamese(value).equals(normalizedCandidate)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String joinStrings(List<String> values) {
@@ -184,6 +273,24 @@ public class RecommendationEngine {
             builder.append(values.get(i));
         }
         return builder.toString();
+    }
+
+    private static String joinLimited(List<String> values, int limit) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        int displayCount = Math.min(values.size(), limit);
+        List<String> displayedValues = values.subList(0, displayCount);
+        String result = joinStrings(displayedValues);
+        if (values.size() > displayCount) {
+            result += " và " + (values.size() - displayCount) + " nguyên liệu khác";
+        }
+        return result;
+    }
+
+    private static String formatMoney(double value) {
+        return MONEY_FORMAT.format(value).replace(",", ".") + "đ";
     }
 
     public static String normalizeVietnamese(String value) {
@@ -215,6 +322,157 @@ public class RecommendationEngine {
         return recipeText.contains(userTerm) || userTerm.contains(recipeText);
     }
 
+    private static IngredientMatchSummary calculateIngredientMatchSummary(Recipe recipe, List<String> userIngredients) {
+        IngredientMatchSummary summary = new IngredientMatchSummary();
+        List<String> recipeIngredients = safeIngredients(recipe);
+        List<String> userIngredientList = safeList(userIngredients);
+        if (recipeIngredients.isEmpty() || userIngredientList.isEmpty()) {
+            return summary;
+        }
+
+        Set<String> matchedRecipeKeys = new LinkedHashSet<>();
+        Set<String> userKeys = new LinkedHashSet<>();
+        Set<String> recipeKeys = new LinkedHashSet<>();
+
+        for (String recipeIngredient : recipeIngredients) {
+            recipeKeys.add(canonicalIngredient(recipeIngredient));
+        }
+        for (String userIngredient : userIngredientList) {
+            userKeys.add(canonicalIngredient(userIngredient));
+        }
+
+        for (String recipeIngredient : recipeIngredients) {
+            for (String userIngredient : userIngredientList) {
+                if (isIngredientMatch(userIngredient, recipeIngredient)) {
+                    matchedRecipeKeys.add(canonicalIngredient(recipeIngredient));
+                    break;
+                }
+            }
+        }
+
+        Set<String> union = new HashSet<>(recipeKeys);
+        union.addAll(userKeys);
+        summary.recipeCoverage = recipeKeys.isEmpty() ? 0 : (double) matchedRecipeKeys.size() / recipeKeys.size();
+        summary.jaccardSimilarity = union.isEmpty() ? 0 : (double) matchedRecipeKeys.size() / union.size();
+        summary.mainIngredientBonus = hasMainIngredientMatch(recipeIngredients, userIngredientList) ? MAIN_INGREDIENT_BONUS : 0;
+        summary.ingredientScore = Math.min(100.0,
+                ((0.70 * summary.recipeCoverage) + (0.30 * summary.jaccardSimilarity)) * 100.0
+                        + summary.mainIngredientBonus);
+        return summary;
+    }
+
+    private static boolean hasMainIngredientMatch(List<String> recipeIngredients, List<String> userIngredients) {
+        if (recipeIngredients == null || recipeIngredients.isEmpty()
+                || userIngredients == null || userIngredients.isEmpty()) {
+            return false;
+        }
+        int limit = Math.min(2, recipeIngredients.size());
+        for (int i = 0; i < limit; i++) {
+            String recipeIngredient = recipeIngredients.get(i);
+            for (String userIngredient : userIngredients) {
+                if (isIngredientMatch(userIngredient, recipeIngredient)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isIngredientMatch(String first, String second) {
+        String a = canonicalIngredient(first);
+        String b = canonicalIngredient(second);
+        if (a.isEmpty() || b.isEmpty()) {
+            return false;
+        }
+        if (a.equals(b) || a.contains(b) || b.contains(a)) {
+            return true;
+        }
+        return areSynonyms(a, b);
+    }
+
+    private static boolean areSynonyms(String first, String second) {
+        for (Map.Entry<String, List<String>> entry : SYNONYM_MAP.entrySet()) {
+            List<String> terms = entry.getValue();
+            boolean hasFirst = terms.contains(first);
+            boolean hasSecond = terms.contains(second);
+            if (hasFirst && hasSecond) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String canonicalIngredient(String value) {
+        String normalized = normalizeVietnamese(value)
+                .replaceAll("[^a-z0-9\\s]+", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+        for (Map.Entry<String, List<String>> entry : SYNONYM_MAP.entrySet()) {
+            if (entry.getValue().contains(normalized)) {
+                return entry.getKey();
+            }
+        }
+        return normalized;
+    }
+
+    private static List<String> safeIngredients(Recipe recipe) {
+        if (recipe == null || recipe.getIngredients() == null) {
+            return new ArrayList<>();
+        }
+        List<String> values = new ArrayList<>();
+        for (String ingredient : recipe.getIngredients()) {
+            if (ingredient != null && !ingredient.trim().isEmpty()) {
+                values.add(ingredient.trim());
+            }
+        }
+        return values;
+    }
+
+    private static List<String> safeList(List<String> values) {
+        List<String> result = new ArrayList<>();
+        if (values == null) {
+            return result;
+        }
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) {
+                result.add(value.trim());
+            }
+        }
+        return result;
+    }
+
+    private static Map<String, List<String>> buildSynonymMap() {
+        Map<String, List<String>> map = new HashMap<>();
+        addSynonyms(map, "thit heo", "thit heo", "thit lon", "thit ba chi", "thit nac");
+        addSynonyms(map, "ca chua", "ca chua", "tomato", "ca chua bi", "ca chua cherry");
+        addSynonyms(map, "dau hu", "dau hu", "dau phu", "tofu");
+        addSynonyms(map, "hanh", "hanh", "hanh la", "hanh tay");
+        addSynonyms(map, "toi", "toi", "garlic", "toi bam");
+        addSynonyms(map, "nuoc mam", "nuoc mam", "mam", "fish sauce");
+        addSynonyms(map, "thit ga", "thit ga", "ga", "uc ga", "dui ga", "chicken");
+        addSynonyms(map, "thit bo", "thit bo", "bo", "beef");
+        return map;
+    }
+
+    private static void addSynonyms(Map<String, List<String>> map, String canonical, String... values) {
+        List<String> normalizedValues = new ArrayList<>();
+        normalizedValues.add(normalizeVietnamese(canonical));
+        for (String value : values) {
+            String normalized = normalizeVietnamese(value);
+            if (!normalizedValues.contains(normalized)) {
+                normalizedValues.add(normalized);
+            }
+        }
+        map.put(normalizeVietnamese(canonical), normalizedValues);
+    }
+
+    private static class IngredientMatchSummary {
+        double recipeCoverage;
+        double jaccardSimilarity;
+        double mainIngredientBonus;
+        double ingredientScore;
+    }
+
     private static List<String> buildSearchableTexts(Recipe recipe) {
         List<String> searchableTexts = new ArrayList<>();
         if (recipe == null) {
@@ -229,6 +487,9 @@ public class RecommendationEngine {
         }
         if (recipe.getTitle() != null) {
             searchableTexts.add(recipe.getTitle());
+        }
+        if (recipe.getDescription() != null) {
+            searchableTexts.add(recipe.getDescription());
         }
         if (recipe.getTags() != null) {
             searchableTexts.addAll(recipe.getTags());

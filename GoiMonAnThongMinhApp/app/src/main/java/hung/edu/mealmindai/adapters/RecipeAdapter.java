@@ -15,15 +15,18 @@ import com.bumptech.glide.Glide;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
+import hung.edu.mealmindai.repositories.RatingRepository;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
     private final List<Recipe> recipes;
     private final OnRecipeClickListener listener;
     private final DecimalFormat costFormat = new DecimalFormat("#,###");
+    private final RatingRepository ratingRepository = new RatingRepository();
 
     public RecipeAdapter(List<Recipe> recipes, OnRecipeClickListener listener) {
         this.recipes = recipes != null ? recipes : new ArrayList<>();
@@ -66,6 +69,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         private final ImageView imageRecipe;
         private final TextView textRecipeName;
         private final TextView textRecipeDescription;
+        private final TextView textRecipeRating;
         private final TextView textCalories;
         private final TextView textCost;
         private final TextView textCookingTime;
@@ -83,6 +87,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             imageRecipe = itemView.findViewById(R.id.imageRecipe);
             textRecipeName = itemView.findViewById(R.id.textRecipeName);
             textRecipeDescription = itemView.findViewById(R.id.textRecipeDescription);
+            textRecipeRating = itemView.findViewById(R.id.textRecipeRating);
             textCalories = itemView.findViewById(R.id.textCalories);
             textCost = itemView.findViewById(R.id.textCost);
             textCookingTime = itemView.findViewById(R.id.textCookingTime);
@@ -104,6 +109,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             textCookingTime.setText(formatCookingTime(recipe.getCookingTime()));
             textDifficulty.setText(formatDifficulty(recipe.getDifficulty()));
             bindSuggestionInfo(recipe);
+            bindRatingInfo(recipe);
 
             loadRecipeImage(recipe);
 
@@ -191,6 +197,57 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             setListTextOrHide(textMissingIngredients, "Cần bổ sung: ",
                     recipe.getMissingIngredients(), 4);
             setTextOrHide(textRecommendationReason, recipe.getRecommendationReason());
+        }
+
+        private void bindRatingInfo(Recipe recipe) {
+            String recipeId = recipe.getRecipeId();
+            textRecipeRating.setTag(recipeId);
+            textRecipeRating.setVisibility(View.GONE);
+
+            if (recipe.getAverageRating() != null
+                    && recipe.getRatingCount() != null
+                    && recipe.getRatingCount() > 0) {
+                showRating(recipe.getAverageRating(), recipe.getRatingCount());
+                return;
+            }
+
+            if (TextUtils.isEmpty(recipeId)) {
+                return;
+            }
+
+            ratingRepository.loadAverageRatingInfo(recipeId, new RatingRepository.AverageRatingCallback() {
+                @Override
+                public void onSuccess(double averageRating, int ratingCount) {
+                    Object currentTag = textRecipeRating.getTag();
+                    if (!recipeId.equals(currentTag)) {
+                        return;
+                    }
+
+                    recipe.setAverageRating(averageRating);
+                    recipe.setRatingCount(ratingCount);
+                    if (ratingCount > 0) {
+                        showRating(averageRating, ratingCount);
+                    } else {
+                        textRecipeRating.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Object currentTag = textRecipeRating.getTag();
+                    if (recipeId.equals(currentTag)) {
+                        textRecipeRating.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+
+        private void showRating(double averageRating, int ratingCount) {
+            String ratingText = ratingCount > 1
+                    ? String.format(Locale.getDefault(), "★ %.1f (%d)", averageRating, ratingCount)
+                    : String.format(Locale.getDefault(), "★ %.1f", averageRating);
+            textRecipeRating.setText(ratingText);
+            textRecipeRating.setVisibility(View.VISIBLE);
         }
     }
 

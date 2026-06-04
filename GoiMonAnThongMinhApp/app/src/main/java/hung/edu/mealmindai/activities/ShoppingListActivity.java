@@ -35,6 +35,7 @@ public class ShoppingListActivity extends AppCompatActivity {
     private String recipeId;
     private String recipeName = "";
     private TextView textRecipeName;
+    private TextView textProgress;
     private LinearLayout layoutItems;
     private MaterialButton buttonSave;
     private ProgressBar progressBar;
@@ -57,6 +58,7 @@ public class ShoppingListActivity extends AppCompatActivity {
     private void initViews() {
         ImageButton buttonBack = findViewById(R.id.buttonShoppingBack);
         textRecipeName = findViewById(R.id.textShoppingRecipeName);
+        textProgress = findViewById(R.id.textShoppingProgress);
         layoutItems = findViewById(R.id.layoutShoppingItems);
         buttonSave = findViewById(R.id.buttonSaveShoppingList);
         progressBar = findViewById(R.id.progressShoppingList);
@@ -88,6 +90,7 @@ public class ShoppingListActivity extends AppCompatActivity {
                         }
                     }
                     renderItems();
+                    loadSavedCheckedItems();
                 })
                 .addOnFailureListener(e -> {
                     setLoading(false);
@@ -117,9 +120,46 @@ public class ShoppingListActivity extends AppCompatActivity {
             checkBox.setButtonTintList(android.content.res.ColorStateList.valueOf(
                     ContextCompat.getColor(this, R.color.primary_green)));
             checkBox.setPadding(4, 10, 4, 10);
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> updateProgressText());
             layoutItems.addView(checkBox);
             checkBoxes.add(checkBox);
         }
+        updateProgressText();
+    }
+
+    private void loadSavedCheckedItems() {
+        repository.loadCheckedItems(recipeId, new ShoppingListRepository.CheckedItemsCallback() {
+            @Override
+            public void onSuccess(List<String> checkedItems) {
+                applyCheckedItems(checkedItems);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Không chặn màn hình nếu chưa đọc được danh sách đã lưu.
+            }
+
+            @Override
+            public void onLoginRequired() {
+                // Người chưa đăng nhập vẫn xem được nguyên liệu, chỉ không lưu được.
+            }
+        });
+    }
+
+    private void applyCheckedItems(List<String> checkedItems) {
+        if (checkedItems == null || checkedItems.isEmpty()) {
+            return;
+        }
+
+        for (CheckBox checkBox : checkBoxes) {
+            for (String checkedItem : checkedItems) {
+                if (normalize(checkBox.getText().toString()).equals(normalize(checkedItem))) {
+                    checkBox.setChecked(true);
+                    break;
+                }
+            }
+        }
+        updateProgressText();
     }
 
     private void saveShoppingList() {
@@ -159,5 +199,19 @@ public class ShoppingListActivity extends AppCompatActivity {
     private void setLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         buttonSave.setEnabled(!isLoading);
+    }
+
+    private void updateProgressText() {
+        int checkedCount = 0;
+        for (CheckBox checkBox : checkBoxes) {
+            if (checkBox.isChecked()) {
+                checkedCount++;
+            }
+        }
+        textProgress.setText("Đã chuẩn bị " + checkedCount + "/" + items.size() + " nguyên liệu");
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

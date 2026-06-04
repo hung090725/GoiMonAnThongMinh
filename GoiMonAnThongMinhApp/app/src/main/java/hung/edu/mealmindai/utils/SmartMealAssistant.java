@@ -5,12 +5,9 @@ import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import hung.edu.mealmindai.models.Recipe;
 import hung.edu.mealmindai.models.RecipeScoreResult;
@@ -22,21 +19,7 @@ import hung.edu.mealmindai.models.User;
  */
 public class SmartMealAssistant {
     private static final String TAG = "SmartMealAI";
-    private static final Pattern MONEY_K_PATTERN = Pattern.compile("(?:duoi|dưới|khoang|khoảng)?\\s*(\\d{1,4})\\s*k");
-    private static final Pattern MONEY_NUMBER_PATTERN = Pattern.compile("(?:duoi|dưới|khoang|khoảng)?\\s*(\\d{5,7})");
-    private static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,3})\\s*(?:phut|phút)");
     private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###");
-    private static final List<String> COMMON_INGREDIENTS = Arrays.asList(
-            "trứng", "cà chua", "cơm", "thịt heo", "thịt gà", "ức gà", "rau",
-            "hành", "tỏi", "sả", "ớt", "đậu hũ", "cá", "bí đỏ", "rau ngót",
-            "nấm", "mì", "bún", "gạo", "thịt băm", "đậu phụ"
-    );
-    private static final List<String> INGREDIENT_STOPWORDS = Arrays.asList(
-            "tôi", "toi", "mình", "minh", "bạn", "ban", "em", "anh", "chị", "chi",
-            "muốn", "muon", "cần", "can", "gợi ý", "goi y", "kiểm tra", "kiem tra",
-            "collection", "recipes", "món ăn", "mon an", "món", "mon", "ăn", "an",
-            "nấu", "nau", "dữ liệu", "du lieu"
-    );
 
     public SmartSuggestionResponse suggestMeals(String userInput, User userProfile, List<Recipe> recipes) {
         ParsedRequest request = parseInput(userInput, userProfile);
@@ -45,6 +28,15 @@ public class SmartMealAssistant {
                 + " budget=" + request.budget
                 + " time=" + request.availableTime
                 + " healthGoal=" + request.healthGoal);
+
+        String directAnswer = buildDirectAnswerIfNeeded(request);
+        if (!TextUtils.isEmpty(directAnswer)) {
+            return new SmartSuggestionResponse(directAnswer, new ArrayList<>(), false);
+        }
+
+        if (!request.hasFoodIntent) {
+            return new SmartSuggestionResponse(buildFallbackGuide(), new ArrayList<>(), false);
+        }
 
         if (recipes == null || recipes.isEmpty()) {
             return new SmartSuggestionResponse("Hiện chưa có dữ liệu món ăn đã được duyệt.",
@@ -68,8 +60,17 @@ public class SmartMealAssistant {
 
         if (topResults.isEmpty()) {
             return new SmartSuggestionResponse(
-                    "Hiện mình chưa tìm thấy món phù hợp. Bạn có thể nhập thêm nguyên liệu như trứng, cà chua, cơm, thịt heo hoặc rau.",
+                    "Mình chưa tìm thấy món thật sự phù hợp với dữ liệu hiện có.\n\nBạn thử nhập rõ hơn theo mẫu:\n- Tôi có trứng, cà chua, dưới 30k\n- Món nấu nhanh 15 phút\n- Gợi ý món giảm cân",
                     topResults,
+                    false
+            );
+        }
+
+        if (!request.ingredients.isEmpty()
+                && topResults.get(0).getIngredientScore() <= 0) {
+            return new SmartSuggestionResponse(
+                    "Mình chưa tìm thấy món khớp với nguyên liệu bạn nhập.\n\nBạn có thể thử nguyên liệu khác hoặc dùng nút Tủ lạnh của tôi để tìm từ danh sách nguyên liệu đã lưu.",
+                    new ArrayList<>(),
                     false
             );
         }
@@ -101,129 +102,73 @@ public class SmartMealAssistant {
     }
 
     private ParsedRequest parseInput(String input, User userProfile) {
-        String raw = input == null ? "" : input.trim();
-        String normalized = RecommendationEngine.normalizeVietnamese(raw);
+        SmartInputParser.ParsedInput parsedInput = SmartInputParser.parse(input, userProfile);
         ParsedRequest request = new ParsedRequest();
-        request.healthGoal = parseHealthGoal(normalized, userProfile);
-        request.budget = parseBudget(normalized, userProfile);
-        request.availableTime = parseTime(normalized, userProfile);
-        request.ingredients = parseIngredients(raw, normalized);
+        request.healthGoal = parsedInput.healthGoal;
+        request.budget = parsedInput.maxBudget;
+        request.availableTime = parsedInput.maxTime;
+        request.ingredients = parsedInput.ingredients;
+        request.normalizedText = parsedInput.normalizedText;
+        request.hasFoodIntent = parsedInput.hasFoodIntent;
         return request;
     }
 
-    private String parseHealthGoal(String normalized, User userProfile) {
-        if (normalized.contains("giam can")) {
-            return "Giảm cân";
-        } else if (normalized.contains("tang can")) {
-            return "Tăng cân";
-        } else if (normalized.contains("can bang")) {
-            return "Ăn cân bằng";
-        } else if (normalized.contains("tiet kiem")) {
-            return "Ăn tiết kiệm";
-        } else if (normalized.contains("an nhanh") || normalized.contains("nau nhanh")) {
-            return "Ăn nhanh";
+    private String buildDirectAnswerIfNeeded(ParsedRequest request) {
+        String normalized = request.normalizedText;
+        if (TextUtils.isEmpty(normalized)) {
+            return "";
         }
 
-        if (userProfile != null) {
-            if (!TextUtils.isEmpty(userProfile.getHealthGoal())) {
-                return userProfile.getHealthGoal();
-            }
-            if (!TextUtils.isEmpty(userProfile.getGoal())) {
-                return userProfile.getGoal();
-            }
+        if (containsAny(normalized, "xin chao", "chao", "hello", "hi ")) {
+            return "Chào bạn, mình là MealMind AI. Mình có thể gợi ý món theo nguyên liệu, ngân sách, thời gian nấu và mục tiêu sức khỏe.\n\nVí dụ: Tôi có trứng, cà chua, muốn ăn dưới 30k.";
+        }
+
+        if (containsAny(normalized, "ban la ai", "ai vay", "mealmind la gi", "tro ly")) {
+            return "Mình là trợ lý gợi ý món ăn của MealMind AI. Mình không gọi API AI bên ngoài; câu trả lời được tạo bằng rule-based/scoring dựa trên dữ liệu món đã duyệt trong Firestore.";
+        }
+
+        if (containsAny(normalized, "cach dung", "huong dan", "help", "giup")) {
+            return buildFallbackGuide();
+        }
+
+        if (containsAny(normalized, "tu lanh", "pantry", "nguyen lieu da luu")) {
+            return "Bạn có thể vào Hồ sơ > Tủ lạnh của tôi để lưu nguyên liệu đang có. Sau đó qua màn Tìm món và bấm Dùng nguyên liệu từ tủ lạnh, app sẽ tự điền nguyên liệu và tìm món phù hợp.";
+        }
+
+        if (containsAny(normalized, "ke hoach", "meal plan", "hom nay")) {
+            return "Kế hoạch hôm nay dùng để lưu món theo bữa sáng, bữa trưa và bữa tối. Khi nấu xong, bạn tick món để theo dõi tiến độ hoàn thành trong ngày.";
+        }
+
+        if (containsAny(normalized, "danh sach mua", "shopping", "can mua")) {
+            return "Danh sách mua lấy nguyên liệu từ món ăn đang xem. Bạn có thể tick từng nguyên liệu đã chuẩn bị, app sẽ lưu lại trạng thái đã tick.";
+        }
+
+        if (containsAny(normalized, "yeu thich", "mon da luu", "favorite")) {
+            return "Món yêu thích được lưu riêng theo tài khoản đang đăng nhập. Bạn bấm biểu tượng tim ở chi tiết món để thêm hoặc bấm lại để bỏ yêu thích.";
+        }
+
+        if (containsAny(normalized, "admin", "duyet", "tu choi", "pending", "approved")) {
+            return "Luồng cộng đồng hoạt động như sau: user gửi công thức với trạng thái pending, admin kiểm tra rồi chuyển sang approved hoặc rejected. Nếu rejected, app lưu lý do từ chối để user xem lại.";
+        }
+
+        if (containsAny(normalized, "cam on", "thanks", "thank")) {
+            return "Không có gì. Bạn cứ nhập nguyên liệu hoặc mục tiêu ăn uống, mình sẽ gợi ý món phù hợp từ dữ liệu của app.";
         }
         return "";
     }
 
-    private int parseBudget(String normalized, User userProfile) {
-        Matcher kMatcher = MONEY_K_PATTERN.matcher(normalized);
-        if (kMatcher.find()) {
-            return safeParseInt(kMatcher.group(1)) * 1000;
-        }
-
-        Matcher numberMatcher = MONEY_NUMBER_PATTERN.matcher(normalized.replace(".", "").replace(",", ""));
-        if (numberMatcher.find()) {
-            return safeParseInt(numberMatcher.group(1));
-        }
-
-        if (userProfile != null && userProfile.getMealBudget() != null) {
-            return userProfile.getMealBudget().intValue();
-        }
-        return 0;
+    private String buildFallbackGuide() {
+        return "Mình có thể hỗ trợ theo các kiểu câu hỏi sau:\n\n"
+                + "- Gợi ý món: Tôi có trứng, cà chua, dưới 30k\n"
+                + "- Theo thời gian: Món nấu nhanh 15 phút\n"
+                + "- Theo sức khỏe: Gợi ý món giảm cân\n"
+                + "- Theo tính năng: Cách dùng tủ lạnh, kế hoạch hôm nay, danh sách mua\n\n"
+                + "Mình sẽ trả lời dựa trên dữ liệu món đã được duyệt và thuật toán rule-based/scoring của app.";
     }
 
-    private int parseTime(String normalized, User userProfile) {
-        Matcher matcher = TIME_PATTERN.matcher(normalized);
-        if (matcher.find()) {
-            return safeParseInt(matcher.group(1));
-        }
-        if (normalized.contains("nau nhanh") || normalized.contains("an nhanh")) {
-            return 20;
-        }
-        if (userProfile != null && userProfile.getAvailableTime() != null) {
-            return userProfile.getAvailableTime();
-        }
-        return 0;
-    }
-
-    private List<String> parseIngredients(String raw, String normalized) {
-        List<String> ingredients = new ArrayList<>();
-        String lowerRaw = raw.toLowerCase();
-        int indexOfCo = RecommendationEngine.normalizeVietnamese(lowerRaw).indexOf("co ");
-        String ingredientPart = indexOfCo >= 0 ? lowerRaw.substring(Math.min(lowerRaw.length(), indexOfCo + 3)) : lowerRaw;
-        ingredientPart = ingredientPart
-                .replaceAll("\\b(với|và|cùng|kèm|thêm|rồi|nữa)\\b", ",")
-                .replaceAll("[.;\\n]+", ",");
-
-        for (String token : ingredientPart.split(",")) {
-            String trimmed = cleanIngredientToken(token);
-            if (isValidIngredientToken(trimmed) && !containsNormalized(ingredients, trimmed)) {
-                ingredients.add(trimmed);
-            }
-        }
-
-        for (String ingredient : COMMON_INGREDIENTS) {
-            if (normalized.contains(RecommendationEngine.normalizeVietnamese(ingredient))
-                    && !containsNormalized(ingredients, ingredient)) {
-                ingredients.add(ingredient);
-            }
-        }
-        return ingredients;
-    }
-
-    private String cleanIngredientToken(String value) {
-        return value == null ? "" : value
-                .replace("tôi có", "")
-                .replace("mình có", "")
-                .replace("toi co", "")
-                .replace("minh co", "")
-                .replace("muốn", "")
-                .replace("món", "")
-                .replace("ăn", "")
-                .replace("nấu", "")
-                .replaceAll("\\b(dưới|duoi|khoảng|khoang|phút|phut|giảm cân|tăng cân|cân bằng|tiết kiệm)\\b", "")
-                .replaceAll("\\d+\\s*k?", "")
-                .trim();
-    }
-
-    private boolean isValidIngredientToken(String value) {
-        String normalized = RecommendationEngine.normalizeVietnamese(value);
-        if (normalized.length() < 2) {
-            return false;
-        }
-
-        for (String stopword : INGREDIENT_STOPWORDS) {
-            if (normalized.equals(RecommendationEngine.normalizeVietnamese(stopword))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean containsNormalized(List<String> values, String candidate) {
-        String normalizedCandidate = RecommendationEngine.normalizeVietnamese(candidate);
-        for (String value : values) {
-            if (RecommendationEngine.normalizeVietnamese(value).equals(normalizedCandidate)) {
+    private boolean containsAny(String value, String... keywords) {
+        for (String keyword : keywords) {
+            if (value.contains(keyword)) {
                 return true;
             }
         }
@@ -234,25 +179,90 @@ public class SmartMealAssistant {
         RecipeScoreResult best = results.get(0);
         Recipe recipe = best.getRecipe();
         StringBuilder response = new StringBuilder();
-        response.append("Mình gợi ý bạn món ").append(recipe.getName()).append(".\n\n");
-        response.append("Vì sao phù hợp:\n");
-        response.append("1. ").append(best.getMatchedIngredients().isEmpty()
-                ? "Món có điểm phù hợp tốt với hồ sơ của bạn."
-                : "Trùng nguyên liệu: " + join(best.getMatchedIngredients()) + ".").append("\n");
-        response.append("2. Chi phí khoảng ").append(formatMoney(recipe.getEstimatedCost()))
-                .append(", ").append(request.budget > 0 ? "so với ngân sách " + formatMoney((double) request.budget) : "phù hợp để tham khảo").append(".\n");
-        response.append("3. Thời gian nấu ").append(recipe.getCookingTime() != null ? recipe.getCookingTime() : 0)
-                .append(" phút").append(request.availableTime > 0 ? ", so với thời gian bạn muốn " + request.availableTime + " phút." : ".").append("\n");
-        response.append("4. Phù hợp mục tiêu: ")
-                .append(TextUtils.isEmpty(request.healthGoal) ? "ăn uống cân bằng." : request.healthGoal + ".").append("\n");
+        double totalScore = best.getTotalScore();
+        int matchPercent = best.getMatchPercent();
+
+        if (totalScore >= 75) {
+            response.append("Mình gợi ý bạn nấu ").append(recipe.getName()).append(".");
+        } else if (totalScore >= 55) {
+            response.append("Mình tìm được món khá gần với nhu cầu của bạn: ")
+                    .append(recipe.getName()).append(".");
+        } else {
+            response.append("Món gần nhất mình tìm được là ")
+                    .append(recipe.getName())
+                    .append(", nhưng bạn sẽ cần chuẩn bị thêm một số nguyên liệu.");
+        }
+        response.append("\n\n");
+
+        if (request.ingredients != null && !request.ingredients.isEmpty()) {
+            response.append("Bạn đang có: ").append(join(request.ingredients)).append(".\n");
+        }
+
+        if (best.getMatchedIngredients() != null && !best.getMatchedIngredients().isEmpty()) {
+            response.append("Món này dùng được: ")
+                    .append(joinLimited(best.getMatchedIngredients(), 4))
+                    .append(".\n");
+        }
+
+        if (best.getMissingIngredients() != null && !best.getMissingIngredients().isEmpty()) {
+            response.append("Cần mua thêm: ")
+                    .append(joinLimited(best.getMissingIngredients(), 4))
+                    .append(".\n");
+        }
+
+        response.append("\nĐánh giá nhanh: ");
+        if (matchPercent >= 80) {
+            response.append("bạn gần như có đủ nguyên liệu để nấu ngay.");
+        } else if (matchPercent >= 40) {
+            response.append("bạn đã có một phần nguyên liệu, chỉ cần mua thêm ít.");
+        } else {
+            response.append("món này cần mua thêm khá nhiều, nên phù hợp khi bạn vẫn muốn nấu món gà.");
+        }
+
+        appendBudgetNote(response, recipe, request);
+        appendTimeNote(response, recipe, request);
+        appendHealthNote(response, request);
 
         if (results.size() > 1) {
-            response.append("\nGợi ý thêm:");
+            response.append("\n\nBạn cũng có thể xem thêm:");
             for (int i = 1; i < results.size(); i++) {
                 response.append("\n- ").append(results.get(i).getRecipe().getName());
             }
         }
         return response.toString();
+    }
+
+    private void appendBudgetNote(StringBuilder response, Recipe recipe, ParsedRequest request) {
+        if (request.budget <= 0) {
+            return;
+        }
+        double cost = recipe.getEstimatedCost() != null ? recipe.getEstimatedCost() : 0;
+        response.append(" Chi phí khoảng ").append(formatMoney(cost));
+        if (cost <= request.budget) {
+            response.append(", nằm trong ngân sách ").append(formatMoney((double) request.budget)).append(".");
+        } else {
+            response.append(", hơi vượt ngân sách ").append(formatMoney((double) request.budget)).append(".");
+        }
+    }
+
+    private void appendTimeNote(StringBuilder response, Recipe recipe, ParsedRequest request) {
+        if (request.availableTime <= 0) {
+            return;
+        }
+        int time = recipe.getCookingTime() != null ? recipe.getCookingTime() : 0;
+        response.append(" Thời gian nấu khoảng ").append(time).append(" phút");
+        if (time <= request.availableTime) {
+            response.append(", kịp với thời gian bạn muốn.");
+        } else {
+            response.append(", lâu hơn thời gian bạn muốn một chút.");
+        }
+    }
+
+    private void appendHealthNote(StringBuilder response, ParsedRequest request) {
+        if (TextUtils.isEmpty(request.healthGoal)) {
+            return;
+        }
+        response.append(" Mình cũng đã xét theo mục tiêu ").append(request.healthGoal).append(".");
     }
 
     private String formatMoney(Double value) {
@@ -271,6 +281,25 @@ public class SmartMealAssistant {
         return builder.toString();
     }
 
+    private String joinLimited(List<String> values, int limit) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        int displayCount = Math.min(values.size(), limit);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < displayCount; i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(values.get(i));
+        }
+        if (values.size() > displayCount) {
+            builder.append(" và ").append(values.size() - displayCount).append(" nguyên liệu khác");
+        }
+        return builder.toString();
+    }
+
     private int safeParseInt(String value) {
         try {
             return Integer.parseInt(value);
@@ -284,5 +313,7 @@ public class SmartMealAssistant {
         int budget;
         int availableTime;
         String healthGoal = "";
+        String normalizedText = "";
+        boolean hasFoodIntent;
     }
 }
