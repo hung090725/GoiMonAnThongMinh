@@ -28,6 +28,18 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.MySubmittedRecipesActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ShoppingListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.CookModeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.AiSuggestionHistoryActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

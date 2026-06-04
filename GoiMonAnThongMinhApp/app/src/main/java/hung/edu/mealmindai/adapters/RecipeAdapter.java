@@ -70,6 +70,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         private final TextView textCost;
         private final TextView textCookingTime;
         private final TextView textDifficulty;
+        private final View layoutSuggestionInfo;
+        private final TextView textRecommendationScore;
+        private final TextView textMatchedIngredients;
+        private final TextView textMissingIngredients;
+        private final TextView textRecommendationReason;
 
         RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -80,6 +85,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             textCost = itemView.findViewById(R.id.textCost);
             textCookingTime = itemView.findViewById(R.id.textCookingTime);
             textDifficulty = itemView.findViewById(R.id.textDifficulty);
+            layoutSuggestionInfo = itemView.findViewById(R.id.layoutSuggestionInfo);
+            textRecommendationScore = itemView.findViewById(R.id.textRecommendationScore);
+            textMatchedIngredients = itemView.findViewById(R.id.textMatchedIngredients);
+            textMissingIngredients = itemView.findViewById(R.id.textMissingIngredients);
+            textRecommendationReason = itemView.findViewById(R.id.textRecommendationReason);
         }
 
         void bind(Recipe recipe) {
@@ -89,6 +99,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             textCost.setText(formatCost(recipe.getEstimatedCost()));
             textCookingTime.setText(formatCookingTime(recipe.getCookingTime()));
             textDifficulty.setText(formatDifficulty(recipe.getDifficulty()));
+            bindSuggestionInfo(recipe);
 
             loadRecipeImage(recipe);
 
@@ -123,6 +134,53 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                     .error(R.drawable.ic_meal_placeholder)
                     .centerCrop()
                     .into(imageRecipe);
+        }
+
+        private void bindSuggestionInfo(Recipe recipe) {
+            boolean hasScore = recipe.getRecommendationScore() != null
+                    && recipe.getRecommendationScore() > 0;
+            boolean hasMatchPercent = recipe.getMatchPercent() != null
+                    && recipe.getMatchPercent() > 0;
+            boolean hasMatchedIngredients = recipe.getMatchedIngredients() != null
+                    && !recipe.getMatchedIngredients().isEmpty();
+            boolean hasMissingIngredients = recipe.getMissingIngredients() != null
+                    && !recipe.getMissingIngredients().isEmpty();
+            boolean hasReason = !TextUtils.isEmpty(recipe.getRecommendationReason());
+
+            if (!hasScore && !hasMatchPercent && !hasMatchedIngredients
+                    && !hasMissingIngredients && !hasReason) {
+                layoutSuggestionInfo.setVisibility(View.GONE);
+                return;
+            }
+
+            layoutSuggestionInfo.setVisibility(View.VISIBLE);
+
+            if (hasScore || hasMatchPercent) {
+                StringBuilder scoreText = new StringBuilder();
+                if (hasScore) {
+                    scoreText.append("Điểm phù hợp: ")
+                            .append(Math.round(recipe.getRecommendationScore()))
+                            .append("/100");
+                }
+                if (hasMatchPercent) {
+                    if (scoreText.length() > 0) {
+                        scoreText.append(" • ");
+                    }
+                    scoreText.append("Trùng ")
+                            .append(recipe.getMatchPercent())
+                            .append("% nguyên liệu");
+                }
+                textRecommendationScore.setText(scoreText.toString());
+                textRecommendationScore.setVisibility(View.VISIBLE);
+            } else {
+                textRecommendationScore.setVisibility(View.GONE);
+            }
+
+            setListTextOrHide(textMatchedIngredients, "Bạn có: ",
+                    recipe.getMatchedIngredients(), 4);
+            setListTextOrHide(textMissingIngredients, "Cần bổ sung: ",
+                    recipe.getMissingIngredients(), 4);
+            setTextOrHide(textRecommendationReason, recipe.getRecommendationReason());
         }
     }
 
@@ -174,5 +232,39 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     private String formatDifficulty(String difficulty) {
         return TextUtils.isEmpty(difficulty) ? "Dễ" : difficulty;
+    }
+
+    private void setTextOrHide(TextView textView, String value) {
+        if (TextUtils.isEmpty(value)) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(value);
+            textView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setListTextOrHide(TextView textView, String prefix, List<String> values, int limit) {
+        if (values == null || values.isEmpty()) {
+            textView.setVisibility(View.GONE);
+            return;
+        }
+
+        textView.setText(prefix + joinLimited(values, limit));
+        textView.setVisibility(View.VISIBLE);
+    }
+
+    private String joinLimited(List<String> values, int limit) {
+        int displayCount = Math.min(values.size(), limit);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < displayCount; i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(values.get(i));
+        }
+        if (values.size() > displayCount) {
+            builder.append(" và ").append(values.size() - displayCount).append(" nguyên liệu khác");
+        }
+        return builder.toString();
     }
 }

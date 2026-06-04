@@ -22,6 +22,7 @@ import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.activities.AiSuggestionHistoryActivity;
 import hung.edu.mealmindai.activities.EditHealthProfileActivity;
 import hung.edu.mealmindai.activities.LoginActivity;
+import hung.edu.mealmindai.activities.MySubmittedRecipesActivity;
 import hung.edu.mealmindai.activities.NotificationActivity;
 import hung.edu.mealmindai.models.User;
 import hung.edu.mealmindai.repositories.UserRepository;
@@ -33,7 +34,7 @@ public class ProfileFragment extends Fragment {
     private TextView textMonthlyBudget, textMealBudget, textAvailableTime;
     private View layoutContent;
     private ProgressBar progressBar;
-    private Button buttonEdit, buttonLogout, buttonOpenNotifications, buttonOpenAiHistory;
+    private Button buttonEdit, buttonLogout, buttonOpenNotifications, buttonOpenAiHistory, buttonOpenMyRecipes;
 
     private UserRepository userRepository;
     private final DecimalFormat currencyFormat = new DecimalFormat("#,###");
@@ -75,6 +76,7 @@ public class ProfileFragment extends Fragment {
         buttonLogout = view.findViewById(R.id.buttonLogout);
         buttonOpenNotifications = view.findViewById(R.id.buttonOpenNotifications);
         buttonOpenAiHistory = view.findViewById(R.id.buttonOpenAiHistory);
+        buttonOpenMyRecipes = view.findViewById(R.id.buttonOpenMyRecipes);
     }
 
     private void setupClickListeners() {
@@ -87,6 +89,9 @@ public class ProfileFragment extends Fragment {
 
         buttonOpenAiHistory.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), AiSuggestionHistoryActivity.class)));
+
+        buttonOpenMyRecipes.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), MySubmittedRecipesActivity.class)));
 
         buttonLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

@@ -1,5 +1,6 @@
 package hung.edu.mealmindai.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,21 +11,26 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
 
+import com.google.android.material.button.MaterialButton;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import hung.edu.mealmindai.R;
 import hung.edu.mealmindai.models.Recipe;
 import hung.edu.mealmindai.repositories.FavoriteRepository;
+import hung.edu.mealmindai.repositories.MealPlanRepository;
 import hung.edu.mealmindai.repositories.RecipeRepository;
 
 public class RecipeDetailActivity extends AppCompatActivity {
@@ -39,14 +45,17 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private TextView textName, textDescription, textCalories, textTime, textCost;
     private TextView textDifficulty, textAuthor, textLikes, textIngredients, textSteps, textDetailError;
     private TextView buttonScrollIngredients, buttonScrollSteps, buttonScrollTop;
+    private MaterialButton buttonAddTodayPlan, buttonOpenShoppingList, buttonOpenCookMode;
     private ProgressBar progressBar;
     private FirebaseFirestore db;
 
     // Favorite state
     private FavoriteRepository favoriteRepository;
+    private MealPlanRepository mealPlanRepository;
     private boolean isFavorited = false;
     private String currentFavoriteId = null;
     private String currentRecipeId = null;
+    private Recipe currentRecipe = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +64,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         favoriteRepository = new FavoriteRepository();
+        mealPlanRepository = new MealPlanRepository();
         initViews();
         setupToolbar();
         setupQuickScrollButtons();
         setupFavoriteButton();
+        setupMealPlanButton();
+        setupAdvancedActionButtons();
 
         currentRecipeId = getIntent().getStringExtra(EXTRA_RECIPE_ID);
         if (!TextUtils.isEmpty(currentRecipeId)) {
@@ -91,6 +103,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
         buttonScrollIngredients = findViewById(R.id.buttonScrollIngredients);
         buttonScrollSteps = findViewById(R.id.buttonScrollSteps);
         buttonScrollTop = findViewById(R.id.buttonScrollTop);
+        buttonAddTodayPlan = findViewById(R.id.buttonAddTodayPlan);
+        buttonOpenShoppingList = findViewById(R.id.buttonOpenShoppingList);
+        buttonOpenCookMode = findViewById(R.id.buttonOpenCookMode);
         progressBar = findViewById(R.id.progressDetail);
     }
 
@@ -177,6 +192,90 @@ public class RecipeDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void setupMealPlanButton() {
+        buttonAddTodayPlan.setOnClickListener(v -> {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "Vui lòng đăng nhập để lập kế hoạch bữa ăn", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (currentRecipe == null || TextUtils.isEmpty(currentRecipeId)) {
+                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showMealTypeDialog();
+        });
+    }
+
+    private void setupAdvancedActionButtons() {
+        buttonOpenShoppingList.setOnClickListener(v -> {
+            if (TextUtils.isEmpty(currentRecipeId)) {
+                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, ShoppingListActivity.class);
+            intent.putExtra(ShoppingListActivity.EXTRA_RECIPE_ID, currentRecipeId);
+            startActivity(intent);
+        });
+
+        buttonOpenCookMode.setOnClickListener(v -> {
+            if (TextUtils.isEmpty(currentRecipeId)) {
+                Toast.makeText(this, "Chưa có dữ liệu món ăn", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, CookModeActivity.class);
+            intent.putExtra(CookModeActivity.EXTRA_RECIPE_ID, currentRecipeId);
+            startActivity(intent);
+        });
+    }
+
+    private void showMealTypeDialog() {
+        String[] labels = {"Bữa sáng", "Bữa trưa", "Bữa tối"};
+        String[] values = {"breakfast", "lunch", "dinner"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Thêm vào kế hoạch hôm nay")
+                .setItems(labels, (dialog, which) -> addRecipeToTodayPlan(values[which], labels[which]))
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void addRecipeToTodayPlan(String mealType, String mealLabel) {
+        buttonAddTodayPlan.setEnabled(false);
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String recipeName = currentRecipe != null ? currentRecipe.getName() : "";
+
+        mealPlanRepository.addRecipeToTodayPlan(
+                currentRecipeId,
+                recipeName,
+                today,
+                mealType,
+                new MealPlanRepository.ActionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        buttonAddTodayPlan.setEnabled(true);
+                        Toast.makeText(RecipeDetailActivity.this,
+                                "Đã thêm vào kế hoạch " + mealLabel.toLowerCase(Locale.ROOT),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        buttonAddTodayPlan.setEnabled(true);
+                        Toast.makeText(RecipeDetailActivity.this,
+                                "Lỗi kế hoạch: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLoginRequired() {
+                        buttonAddTodayPlan.setEnabled(true);
+                        Toast.makeText(RecipeDetailActivity.this,
+                                "Vui lòng đăng nhập để lập kế hoạch bữa ăn",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void checkFavoriteStatus(String recipeId) {
         favoriteRepository.checkFavorite(recipeId, new FavoriteRepository.FavoriteCheckCallback() {
             @Override
@@ -259,6 +358,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void displayRecipe(Recipe recipe) {
         if (recipe == null) return;
+        currentRecipe = recipe;
         appBar.setVisibility(View.VISIBLE);
         detailScrollView.setVisibility(View.VISIBLE);
         textDetailError.setVisibility(View.GONE);
@@ -303,7 +403,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
         List<String> steps = recipe.getSteps();
         if (steps != null && !steps.isEmpty()) {
             for (int i = 0; i < steps.size(); i++) {
-                stepsBuilder.append(i + 1).append(". ").append(steps.get(i)).append("\n\n");
+                stepsBuilder.append("Bước ")
+                        .append(i + 1)
+                        .append(": ")
+                        .append(steps.get(i))
+                        .append("\n\n");
             }
         } else {
             stepsBuilder.append("Đang cập nhật cách chế biến...");
