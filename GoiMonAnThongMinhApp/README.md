@@ -398,6 +398,94 @@ Admin có thể thêm món ăn mới trực tiếp vào hệ thống để phụ
 
 <img src="docs/images/mhthemcongthuc.png" alt="Admin thêm công thức món ăn" width="260">
 
+## Kết Quả Các Chức Năng Nâng Cấp
+
+Các màn hình dưới đây là kết quả bổ sung sau khi nâng cấp ứng dụng. Các chức năng này được triển khai trên nền code hiện có, không dùng API AI bên ngoài và không thay đổi cấu trúc project.
+
+### 45. Tủ lạnh của tôi
+
+Người dùng lưu danh sách nguyên liệu đang có để dùng lại khi tìm món, giúp giảm thao tác nhập liệu và tận dụng nguyên liệu sẵn có.
+
+<img src="docs/images/bo_sung_01_tu_lanh_cua_toi.png" alt="Tủ lạnh của tôi" width="260">
+
+### 46. Card món ăn có điểm sao
+
+Danh sách món hiển thị điểm đánh giá trung bình ngay trên card, giúp người dùng nhận biết món được đánh giá tốt mà không cần mở chi tiết.
+
+<img src="docs/images/bo_sung_02_card_mon_co_sao.png" alt="Card món ăn có điểm sao" width="260">
+
+### 47. Chi tiết món có đánh giá sao
+
+Màn hình chi tiết món hiển thị điểm đánh giá trung bình và cho phép người dùng đánh giá món ăn bằng sao.
+
+<img src="docs/images/bo_sung_03_chi_tiet_danh_gia_sao.png" alt="Chi tiết món có đánh giá sao" width="260">
+
+### 48. Chia sẻ công thức món ăn
+
+Người dùng có thể chia sẻ công thức bằng Android Share Sheet thông qua các ứng dụng có sẵn trên thiết bị.
+
+<img src="docs/images/bo_sung_04_chia_se_cong_thuc.png" alt="Chia sẻ công thức món ăn" width="260">
+
+### 49. Món đã xem gần đây
+
+Trang chủ hiển thị các món người dùng vừa xem để có thể quay lại nhanh mà không cần tìm kiếm lại.
+
+<img src="docs/images/bo_sung_05_mon_da_xem_gan_day.png" alt="Món đã xem gần đây" width="260">
+
+### 50. Tìm kiếm và lịch sử tìm kiếm gần đây
+
+Màn hình tìm món hỗ trợ dùng lại nguyên liệu đã nhập, dùng nguyên liệu từ tủ lạnh và hiển thị kết quả phù hợp.
+
+<img src="docs/images/bo_sung_06_lich_su_tim_kiem_gan_day.png" alt="Tìm kiếm và lịch sử tìm kiếm gần đây" width="260">
+
+### 51. Kế hoạch bữa ăn hôm nay
+
+Người dùng có thể thêm món vào kế hoạch hôm nay theo bữa sáng, bữa trưa hoặc bữa tối và đánh dấu món đã hoàn thành.
+
+<img src="docs/images/bo_sung_07_ke_hoach_hom_nay.png" alt="Kế hoạch bữa ăn hôm nay" width="260">
+
+### 52. Danh sách nguyên liệu cần mua
+
+Màn hình danh sách mua hiển thị các nguyên liệu cần chuẩn bị cho món ăn và cho phép tick checkbox khi đã chuẩn bị.
+
+<img src="docs/images/bo_sung_08_danh_sach_mua.png" alt="Danh sách nguyên liệu cần mua" width="260">
+
+### 53. Cook Mode từng bước
+
+Cook Mode hiển thị từng bước nấu ăn rõ ràng theo dạng Bước X/Y, giúp người dùng dễ theo dõi khi nấu.
+
+<img src="docs/images/bo_sung_09_cook_mode_buoc_nau.png" alt="Cook Mode từng bước" width="260">
+
+### 54. Timer trong Cook Mode
+
+Cook Mode có timer 5 phút đơn giản để hỗ trợ người dùng trong quá trình nấu.
+
+<img src="docs/images/bo_sung_10_cook_mode_timer.png" alt="Timer trong Cook Mode" width="260">
+
+### 55. Công thức của tôi
+
+Người dùng có thể xem lại các công thức mình đã gửi, theo dõi trạng thái đã duyệt hoặc bị từ chối và xem lý do từ chối.
+
+<img src="docs/images/bo_sung_11_cong_thuc_cua_toi.png" alt="Công thức của tôi" width="260">
+
+### 56. Ghi chú dinh dưỡng cơ bản
+
+Chi tiết món hiển thị ghi chú sức khỏe cơ bản dựa trên calo và mục tiêu ăn uống của người dùng, không tự nhận là phân tích macro chuyên sâu.
+
+<img src="docs/images/bo_sung_12_ghi_chu_dinh_duong.png" alt="Ghi chú dinh dưỡng cơ bản" width="260">
+
+### 57. Thông báo
+
+Màn hình thông báo hiển thị các thông báo gợi ý món hôm nay, món được duyệt hoặc bị từ chối.
+
+<img src="docs/images/bo_sung_13_thong_bao.png" alt="Thông báo" width="260">
+
+### 58. Lịch sử gợi ý AI
+
+Người dùng có thể xem lại lịch sử câu hỏi và kết quả gợi ý từ MealMind AI.
+
+<img src="docs/images/bo_sung_14_lich_su_goi_y_ai.png" alt="Lịch sử gợi ý AI" width="260">
+
 ## Hướng Dẫn Chạy Project
 
 1. Clone repository về máy.
