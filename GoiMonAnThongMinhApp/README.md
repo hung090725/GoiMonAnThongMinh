@@ -16,6 +16,12 @@ MealMind AI là ứng dụng Android hỗ trợ gợi ý món ăn theo nguyên l
 | UI chính | Material Components, RecyclerView |
 | Load ảnh | Glide |
 
+## Video Demo
+
+Video quay màn hình demo hoạt động ứng dụng, có trình bày luồng user/admin, các chức năng chính và các chức năng nâng cấp:
+
+[Xem video demo MealMind AI trên Google Drive](https://drive.google.com/file/d/11ohHSlXV4Ay9JT4QuH5JDHopjWbRYC2u/view?usp=sharing)
+
 ## Công Nghệ Sử Dụng
 
 - Java Android
